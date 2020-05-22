@@ -1,0 +1,42 @@
+service:
+  4208128-S2:  # 游戏服务
+    service_id: "4208128-S2"
+    short_code: "4208128"
+    keyword: "S2"
+    aoc_url: "http://aoc-ic.smsgateway.cc/AIS/4208128/S2/?clickId=1{track_id}&returnURL=https%3A%2F%2Fgoogle.com"
+    service_name: "GAME"
+    price: "10"
+    country: "TH"
+    limit_sub_num: 2000
+    camp_id: 2
+  4208128-S3:  # 游戏服务
+    service_id: "4208128-S3"
+    short_code: "4208128"
+    keyword: "S3"
+    aoc_url: "http://aoc-ic.smsgateway.cc/AIS/4208128/S3/?clickId=1{track_id}&returnURL=https%3A%2F%2Fgoogle.com"
+    service_name: "GAME"
+    price: "10"
+    country: "TH"
+    limit_sub_num: 500
+    camp_id: 2
+  4219644-F1:  # 游戏服务
+    service_id: "4219644-F1"
+    short_code: "4219644"
+    keyword: "F1"
+    aoc_url: "http://nextportal.hlifeplus.com/index/?id=71036707031&keyword=F1&refid=N{track_id}&media=11"
+    service_name: "GAME"
+    price: "10"
+    country: "TH"
+    limit_sub_num: 2000
+    camp_id: 3
+  4551251-F1:  # 游戏服务
+    service_id: "4551251-F1"
+    short_code: "4551251"
+    keyword: "F1"
+    aoc_url: "http://aoc.smsgateway.cc/TMH/4551251/F1/?clickId=Q{track_id}&returnURL=https%3A%2F%2Fgoogle.com"
+    service_name: "GAME_TMH"
+    price: "10"
+    country: "TH"
+    limit_sub_num: 1200
+    camp_id: 3
+

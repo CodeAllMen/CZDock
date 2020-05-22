@@ -1,0 +1,95 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=360">
+    <title>{{.product}}</title>
+    <link type="text/css" rel="stylesheet" href="/static/css/hotvdo.css">
+    <style type="text/css">
+        .link {
+            position: absolute;
+            padding: 0 12px 13px 12px;
+            right: 2px;
+            top: 2px;
+            color: #5d301d;
+            display: block;
+            line-height: 64px;
+            font-size: 6rem;
+            text-align: center;
+            cursor: pointer;
+            background-color: #fff;
+            opacity: .8;
+            border: 2px solid #5d301d;
+        }
+
+        .link:hover,
+        .link:focus,
+        .link:active {
+            background-color: #5d301d;
+            border: 2px solid #5d301d;
+            color: #fff;
+            opacity: 1;
+        }
+
+        div.footer p,
+        div.header p {
+            font-size: 12px;
+            line-height: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h3 style="color:#fff">Mobile Content Subscription for Video</h3>
+            <img src="/static/img/hotvdo.jpg" />
+        </div>
+        <div id="form">
+            <div id="mobile_box" class="active">
+                <div class="footer">
+                    <p class="lng_en">
+                </div>
+                <!-- <input type="text" name="mobile" id="mobile" class="textfield radius totheend" autofocus="autofocus" maxlength="11" placeholder="มือถือ"> -->
+                <a style="cursor:pointer" onClick="clicke()" id="submit_btn_mobile" class="button">
+                    <span class="lng_en">Subscribe</span>
+                </a>
+                <div class="footer mybottom">
+                    <p class="lng_en">
+                        {{.product}}: This is an ongoing subscription for mobile contents download until you quit. The
+                        contentis compatible with most mobile phones with multimedia support. Tune Talk / XOX /
+                        UMobile:RM5.00 per SMS, 2 SMS per week. Digi: RM5 per SMS, 2 SMS per week, max. charges RM50
+                        per month. This service is not available for Maxis and Celcom users. GPRS/WAP-enabled
+                        phonerequired. Standard Operator SMS/MMS/WAP/GPRS/UMTS charges apply. To opt out please
+                        send STOP {{.key}} to {{.code}}. To be able to use this service you need to have WAP/GPRS settings enabled
+                        inyour mobile phone. Customers must be age 18+ and have bill payer's permission. This
+                        serviceoperates according to the Malaysia Code of Conduct for SMS services. Trademarks, service
+                        marks,logos (including, without limitation, the individual names of products and retailers) are
+                        theproperty of their respective owners. Helpline: 0380840028 (local rate), from 9am to 6pm
+                        Mondayto Friday (excl. Public Holiday). CS email: cs_my@allterco.asia . Content Service
+                        Provider: MobileCPX . P.O. Box 1239 Offshore Incorporations Centre, Victoria, Mahe, Republic of
+                        Seychelles.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript">
+    function clicke() {
+        var sel = document.getElementById("operator");
+        window.location.href = "/my/click?txid={{.refId}}"
+    }
+    function closeWin() {
+        if (navigator.userAgent.indexOf("Firefox") != -1 || navigator.userAgent.indexOf("Chrome") != -1) {
+            window.location.href = "about:blank";
+            window.close();
+        } else {
+            window.opener = null;
+            window.open("", "_self");
+            window.close();
+        }
+    }
+</script>
+
+</html>

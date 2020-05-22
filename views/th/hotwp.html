@@ -1,0 +1,81 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=360" />
+    <link rel="icon" href=" " type="image/x-icon" />
+    <title>{{.product}}</title>
+    <link type="text/css" rel="stylesheet" href="/static/css/hotwp.css">
+    <style type="text/css">
+        .myp {
+            text-align: center !important;
+            color: black;
+            margin: 10px;
+        }
+
+        .myh {
+            padding: 10px;
+            margin-top: 0px;
+            text-align: center;
+            font-size: 25px;
+            background-color: #b9b8b2;
+            color: black;
+            margin-bottom: 0px;
+        }
+
+        .btp {
+            font-family: sans-serif;
+            text-align: justify;
+            font-size: 12px;
+            margin: 5%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2 class="myh">{{.product}}</h2>
+        <div class="header">
+            <img src="/static/img/hotp.jpg" />
+            <a class="link" onclick="closeWin()">
+                <font color="aliceblue">x</font>
+            </a>
+        </div>
+        <div class="footer">
+            <div class="sub">
+                <button class="buttonOne" onclick="javascript:sub();">สมัครเป็นสมาชิก</button>
+            </div>
+        </div>
+        <p class="btp">
+            {{.product}} 10 บาท / วัน
+            <br>- บริการ {{.product}} วิดีโอสาวๆน่ารักๆ
+            <br>- ราคา 10 บาท / วัน
+            <br>- สมัครพิมพ์ {{.key}} ส่งไปที่ {{.code}}
+            <br>- ยกเลิกพิมพ์ STOP {{.key}} ส่งไปที่ {{.code}}
+            <br>- สอบถามรายละเอียดเพิ่มเติมโทร 02-207-9258 วัน จันทร์ - ศุกร์ 8: 30-17: 30
+            <br>ค่าบริการไม่รวมภาษีมูลค่าเพิ่มและการบริการการเชื่อมต่อ
+            <br>-บริการนี้เหมาะสำหรับผู้ที่มีอายุ 18 ปีขึ้นไปเท่านั้น
+        </p>
+        <p class="btp">
+            เงื่อนไขการใช้บริการ 
+            <br>ผู้ใช้บริการต้องทำการเปิดใช้ GPRS/EDGE/3G/4G เพื่อทำการดาวโหลดคอนเทนต์ 
+            <br>ผู้ใช้บริการได้อ่านและยอมรับเงื่อนไขการใช้บริการก่อนการสมัครแล้ว 
+        </p>
+    </div>
+</body>
+<script>
+    function sub() {
+        window.location.href = "/th/wap?ref={{.refId}}"
+    }
+    function closeWin() {
+        if (navigator.userAgent.indexOf("Firefox") != -1 || navigator.userAgent.indexOf("Chrome") != -1) {
+            window.location.href = "about:blank";
+            window.close();
+        } else {
+            window.opener = null;
+            window.open("", "_self");
+            window.close();
+        }
+    }
+</script>
+</html>

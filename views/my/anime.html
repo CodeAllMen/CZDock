@@ -1,0 +1,71 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=360" />
+    <link rel="icon" href=" " type="image/x-icon" />
+    <title>{{.product}}</title>
+    <link type="text/css" rel="stylesheet" href="/static/css/game.css">
+    <style type="text/css">
+        .myp {
+            text-align: center !important;
+            color: black;
+            margin: 10px;
+        }
+
+        .myh {
+            padding: 10px;
+            margin-top: 0px;
+            text-align: center;
+            font-size: 15px;
+            background-color: #ded997;
+            color: black;
+            margin-bottom: 0px;
+        }
+
+        .btp {
+            font-family: sans-serif;
+            text-align: justify;
+            font-size: 12px;
+            margin: 5%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h4 class="myh">Mobile Content Subscription of {{.product}}</h4>
+        <div class="header">
+            <img src="/static/img/anime.png" />
+        </div>
+        <div class="footer">
+            <div class="sub">
+                <button class="buttonOne" onclick="javascript:clicke();">Subscribe</button>
+            </div>
+        </div>
+        <p class="btp">
+            {{.product}}: This is an ongoing subscription for mobile contents download until you quit. The
+            content is compatible with most mobile phones with multimedia support. Tune Talk / XOX /
+            UMobile:RM5.00 per SMS, 2 SMS per week. Digi: RM5 per SMS, 2 SMS per week, max. charges RM50
+            per month. This service is not available for Maxis and Celcom users. GPRS/WAP-enabled
+            phone required. Standard Operator SMS/MMS/WAP/GPRS/UMTS charges apply. To opt out please
+            send STOP {{.key}} to {{.code}}. To be able to use this service you need to have WAP/GPRS
+            settings enabled
+            in your mobile phone. Customers must be age 18+ and have bill payer's permission. This
+            service operates according to the Malaysia Code of Conduct for SMS services. Trademarks, service
+            marks, logos (including, without limitation, the individual names of products and retailers) are
+            the property of their respective owners. Helpline: 0380840028 (local rate), from 9am to 6pm
+            Monday to Friday (excl. Public Holiday). CS email: cs_my@allterco.asia . Content Service
+            Provider: SeaMobile. 33, JALAN PP 53 TAMAN PINGGIRAN PUTRA 43300 SERI KEMBANGAN SELANGOR MALAYSIA
+        </p>
+    </div>
+</body>
+
+<script type="text/javascript">
+    function clicke() {
+        var sel = document.getElementById("operator");
+        window.location.href = "/my/wap?ref={{.refId}}"
+    }
+</script>
+
+</html>

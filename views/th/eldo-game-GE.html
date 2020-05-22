@@ -1,0 +1,109 @@
+<!-- saved from url=(0032)http://muk.g0finger.com/gold/sub -->
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta name="viewport" content="width=360">
+
+
+    <title>GAME</title>
+    <link type="text/css" rel="stylesheet" href="/static/game-GE/lp.css">
+    <style type="text/css">
+        .link {
+            position: absolute;
+            padding: 0 12px 13px 12px;
+            right: 2px;
+            top: 2px;
+            color: #5d301d;
+            display: block;
+            line-height: 64px;
+            font-size: 6rem;
+            text-align: center;
+            cursor: pointer;
+            background-color: #fff;
+            opacity: .8;
+            border: 2px solid #5d301d;
+        }
+
+        .link:hover,
+        .link:focus,
+        .link:active {
+            background-color: #5d301d;
+            border: 2px solid #5d301d;
+            color: #fff;
+            opacity: 1;
+        }
+
+        .noexit {
+            display: none;
+        }
+    </style>
+
+
+</head>
+
+<body>
+<div class="container">
+    <div style="font-weight: 900;font-size: 37px;text-align: center;font-family: fantasy;color: #b9773a;">
+        GAME
+    </div>
+    <div class="header bg" style="border: 3px solid #ffffff !important;border-radius: 25px;margin:0 10px;">
+        <img src="/static/game-GE/banner.png" style="border-radius: 25px;">
+    </div>
+    <div id="form">
+        <div id="mobile_box" class="active">
+
+            {{/*<a style="cursor:pointer" " id="submit_btn_mobile"*/}}
+            {{/*class="button">*/}}
+            <div style="text-align: center;margin: 13px;">
+                <button class="lng_en" onclick="location.href='/sub/req?tid={{.trackID}}'"
+                        style="background: #ec8100;font-size: 25px;padding: 21px;color: #fff;border-radius: 11px;text-align: center;">
+                    สมัครเป็นสมาชิก
+                </button>
+            </div>
+            {{/*</a>*/}}
+
+            <div class="footer mybottom">
+                <p>Games 10 บาท / วัน</p>
+                <p>- บริการ Games เกมส์บนมือถือรายวัน</p>
+                <p>- ราคา 10 บาท / วัน</p>
+                <p>- สมัครพิมพ์ GE ส่งไปที่ 4556093</p>
+                <p>- ยกเลิกพิมพ์ STOP GE ส่งไปที่ 4556093</p>
+                <p>- สอบถามรายละเอียดเพิ่มเติมโทร 02-207-9258 วัน จันทร์ - ศุกร์ 8: 30-17: 30</p>
+                <p>ค่าบริการไม่รวมภาษีมูลค่าเพิ่มและการบริการการเชื่อมต่อ</p>
+
+
+            </div>
+
+        </div>
+    </div>
+    <div style="text-align: center;"><a href="javascript:tnc()" class="tnc" style="margin-bottom: 10px;">เงื่อนไขการใช้บริการ</a>
+        <div class="footer mybottom noexit" id="tnc">
+            <p class="lng_en">
+            </p>
+            <p>ผู้ใช้บริการต้องทำการเปิดใช้&nbsp;GPRS/EDGE/3G/4G&nbsp;เพื่อทำการดาวโหลดคอนเทนต์ </p>
+            <p>ผู้ใช้บริการได้อ่านและยอมรับเงื่อนไขการใช้บริการก่อนการสมัครแล้ว</p>
+            <p>รองรับเฉพาะระบบ Android เท่านั้น</p>
+            <p></p>
+        </div>
+    </div>
+    <br>
+    <br>
+
+
+</div>
+
+
+<script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+<script>
+
+    function tnc() {
+        if ($("#tnc").hasClass("noexit")) {
+            $("#tnc").removeClass("noexit");
+        } else {
+            $("#tnc").addClass("noexit");
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=360">
+    <title>{{.product}}</title>
+    <link type="text/css" rel="stylesheet" href="/static/css/game.css">
+    <style type="text/css">
+        .link {
+            position: absolute;
+            padding: 0 12px 13px 12px;
+            right: 2px;
+            top: 2px;
+            color: #5d301d;
+            display: block;
+            line-height: 64px;
+            font-size: 6rem;
+            text-align: center;
+            cursor: pointer;
+            background-color: #fff;
+            opacity: .8;
+            border: 2px solid #5d301d;
+        }
+
+        .link:hover,
+        .link:focus,
+        .link:active {
+            background-color: #5d301d;
+            border: 2px solid #5d301d;
+            color: #fff;
+            opacity: 1;
+        }
+        div.footer p, div.header p {
+            font-size: 15px;
+            line-height: 30px;
+            font-weight: normal;
+        }
+        a{
+            text-align: center;
+            float: right;
+            color: chartreuse;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <div class="header">
+        <img src="/static/img/{{.key}}.jpg" />
+        <a class="link" onclick="closeWin()" style="font-family:sans-serif;">
+            <font color='red'>x</font>
+        </a>
+    </div>
+    <div id="form">
+        <div id="mobile_box" class="active">
+            <div class="footer mybottom">
+                <p class="lng_en">
+                <p>ข้อกำหนดในการให้บริการ</p>
+                <p>บริการนี้จะส่งข้อความให้คุณทุกวันกรุณาเปิดอินเตอน์เน็ตบนมือถือเพื่อดาวน์ โหลด ท่านจะได้รับข้อความ วันละ 1 ข้อความ ข้อความละ 10 บาท ต่อ 1 ข้อความ (4G/3G/GPRS) ผู้ที่อายุต่ำกว่า 18 กรุณาขอความเห็นชอบจากผู้ปกครอง ผู้สมัครถือว่าได้รับการยอมรับในเงื่อนไข สอบถามข้อมูลเพิ่มเติม โทร 02-1158814 จ.-ศ. เวลา 08.00-17.00น (ยกเว้นวันหยุดราชการ) ให้บริการโดย.</p>
+                </p>
+                <a href="/th/{{.key}}">กลับ</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    function closeWin() {
+        if (navigator.userAgent.indexOf("Firefox") != -1 || navigator.userAgent.indexOf("Chrome") != -1) {
+            window.location.href = "about:blank";
+            window.close();
+        } else {
+            window.opener = null;
+            window.open("", "_self");
+            window.close();
+        }
+    }
+</script>
+
+</html>

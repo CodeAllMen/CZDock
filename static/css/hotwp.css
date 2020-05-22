@@ -1,0 +1,131 @@
+html{font-family:'-webkit-body';-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}
+body{margin:0}
+article,aside,details,figcaption,figure,footer,header,main,menu,nav,section,summary{display:block}
+audio,canvas,progress,video{display:inline-block;vertical-align:baseline}
+audio:not([controls]){display:none;height:0}[hidden],template{display:none}
+a{background-color:transparent}a:active,a:hover{outline:0}abbr[title]{border-bottom:1px dotted}
+b,strong{font-weight:700}dfn{font-style:italic}h1{font-size:2em;margin:.67em 0}img{border:0}
+
+html {
+    background-image: none;
+    background-size: auto;
+    background-position: top center;
+    background-repeat: no-repeat;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    background-color: #ffffff;
+    background-image: none;
+    background-size: auto;
+    background-position: top center;
+    background-repeat: no-repeat;
+    margin: 0 auto;
+    padding: 0;
+    width: 360px;
+
+}
+.container {
+    min-height: 650px;
+    background-color: #b9b8b2;
+    width: 360px;
+    margin: 0 auto 0 auto;
+    padding: 0;
+    overflow-x: hidden;
+    position: relative;
+}
+div.footer, div.header {
+    text-align: center;
+    padding: 0;
+    margin: 0 auto;
+}
+div.header img {
+    width: 75%;
+}
+div.footer p {
+    text-align: center;
+    font-size: 12px;
+    font-family: sans-serif;
+}
+div.footer {
+    margin: 5px 0px 10px 0px;
+}
+div.footer p{
+    max-width: 340px;
+}
+.footer .sub {
+    text-align: center;
+    color: black;
+}
+
+h5 {
+    font-size: 10px;
+    font-weight: normal;
+    line-height: 20px;
+    margin: 0 0 10px 0;
+    padding:0;
+    text-align: center;
+    letter-spacing: -0.5px;
+    color:#FE0267;
+
+}
+.h6 {
+    font-size: 8px;
+    font-weight: normal;
+    line-height: 20px;
+    margin: 20px 0 10px 0;
+    padding:0;
+    text-align: center;
+
+    color:#705963;
+
+}
+
+a{ text-decoration:none}
+button.buttonOne {
+    height: 50px;
+    width: 75%;
+    padding: 0;
+    margin: 0 auto 0 auto;
+    border-radius: 10px;
+    background-color: #359245;
+    font-family: -webkit-body;
+    color: white;
+    display: block;
+    font-weight: bold;
+    line-height: 20px;
+    text-align: center;
+    font-size:28px;
+    text-decoration: none;
+    letter-spacing: 1px;
+}
+
+select{
+    border-radius: 5px;
+    border: 2px solid #1a922f;
+    width: 300px;
+    text-align: center;
+    height: 30px;
+    background-color: white;
+}
+
+p{
+    text-align: center;
+}
+
+.link {
+    font-family: monospace;
+    position: absolute;
+    padding: 0px 2px 8px 2px;
+    right: 2px;
+    top: 2px;
+    display: block;
+    line-height: 31px;
+    font-size: 4rem;
+    text-align: center;
+    cursor: pointer;
+    background-color: #ec0000;
+    opacity: 0.7;
+    border-radius: 5px;
+}

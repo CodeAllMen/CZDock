@@ -1,0 +1,113 @@
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=360">
+    <title>{{.product}}</title>
+    <link type="text/css" rel="stylesheet" href="/static/css/funnyvdo.css">
+    <style type="text/css">
+        .link {
+            position: absolute;
+            padding: 1px 4px 13px 4px;
+            right: 2px;
+            top: 2px;
+            color: #5d301d;
+            display: block;
+            line-height: 28px;
+            font-size: 67px;
+            text-align: center;
+            cursor: pointer;
+            background-color: #fff;
+            opacity: .8;
+            border: 2px solid #5d301d;
+        }
+
+        .link:hover,
+        .link:focus,
+        .link:active {
+            background-color: #5d301d;
+            border: 2px solid #5d301d;
+            color: #fff;
+            opacity: 1;
+        }
+
+        .tnc {
+            color: chartreuse;
+        }
+
+        p {
+            text-align: left !important;
+        }
+        .noexit{
+            display:none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h3 style="color:#fff;font-size:25px;">{{.product}}</h3>
+            <img src="/static/img/funnyvdo.jpg" />
+            <a class="link" onclick="closeWin()" style="font-family:sans-serif;">
+                <font color='red'>x</font>
+            </a>
+        </div>
+        <div id="form">
+            <div id="mobile_box" class="active">
+                <div class="footer">
+                    <p class="lng_en">
+                </div>
+                <!-- <input type="text" name="mobile" id="mobile" class="textfield radius totheend" autofocus="autofocus" maxlength="11" placeholder="มือถือ"> -->
+                <a style="cursor:pointer" onClick="clicke()" id="submit_btn_mobile" class="button">
+                    <span class="lng_en">สมัครเป็นสมาชิก</span>
+                </a>
+                <div class="footer mybottom">
+                    <p class="lng_en">
+                        <p>{{.product}} 10 บาท / วัน</p>
+                        <p>- บริการ {{.product}} วิดีโอตลกขำขัน สุดฮา</p>
+                        <p>- ราคา 10 บาท / วัน</p>
+                        <p>- สมัครพิมพ์ {{.key}} ส่งไปที่ {{.code}}</p>
+                        <p>- ยกเลิกพิมพ์ STOP {{.key}} ส่งไปที่ {{.code}}</p>
+                        <p>- สอบถามรายละเอียดเพิ่มเติมโทร 02-207-9258 วัน จันทร์ - ศุกร์ 8: 30-17: 30</p>
+                        <p>ค่าบริการไม่รวมภาษีมูลค่าเพิ่มและการบริการการเชื่อมต่อ</p>
+                    </p>
+                    <a href="javascript:tnc()" class="tnc" style="">เงื่อนไขการใช้บริการ</a>
+                </div>
+                <div class="footer mybottom noexit" id="tnc">
+                    <p class="lng_en">
+                        <p>ผู้ใช้บริการต้องทำการเปิดใช้ GPRS/EDGE/3G/4G เพื่อทำการดาวโหลดคอนเทนต์ </p>
+                        <p>ผู้ใช้บริการได้อ่านและยอมรับเงื่อนไขการใช้บริการก่อนการสมัครแล้ว</p>
+                        <p>รองรับเฉพาะระบบ Andriod เท่านั้น</p>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+<script type="text/javascript">
+    function clicke() {
+        var sel = document.getElementById("operator");
+        window.location.href = "/th/click?txid={{.refId}}"
+    }
+    function closeWin() {
+        if (navigator.userAgent.indexOf("Firefox") != -1 || navigator.userAgent.indexOf("Chrome") != -1) {
+            window.location.href = "about:blank";
+            window.close();
+        } else {
+            window.opener = null;
+            window.open("", "_self");
+            window.close();
+        }
+    }
+    function tnc(){
+        if ($("#tnc").hasClass("noexit")){
+            $("#tnc").removeClass("noexit");
+        }else{
+            $("#tnc").addClass("noexit");
+        }
+    }
+</script>
+
+</html>
