@@ -59,16 +59,17 @@ func StartSubService(serviceConfig *models.ServiceInfo, track *models.AffTrack, 
 
 	// MERCHANT使用提示的msisdn调用API
 	// 判断 用户电话号码的 运营商
+	// 构造参数
 	postData := make(map[string]string)
 	postData["action"] = "operator-lookup"
-	postData["merchant"] = "merchant"
+	postData["merchant"] = serviceConfig.MerchantId
 	postData["msisdn"] = msisdn
-	postData["order"] = ""
+	postData["order"] = serviceConfig.ServerOrder
 	postData["redirect"] = string(track.TrackID)
-	postData["url_callback"] = "url_callback"
+	postData["url_callback"] = serviceConfig.DockUrl + "/"
 
 	// 生成 digest
-	postData["digest"] = generateDigest(postData, serviceConfig.RequestKey)
+	postData["digest"] = generateDigest(postData, serviceConfig.MerchantPassword)
 
 	request := httplib.Post(serviceConfig.ServerUrl)
 
@@ -83,6 +84,9 @@ func StartSubService(serviceConfig *models.ServiceInfo, track *models.AffTrack, 
 	}
 
 	fmt.Println(string(result))
+
+	// 数据解析 xml 数据，然后
+	// 这里应该进行重定向 到 xml数据里的 redirect url
 
 	return
 }

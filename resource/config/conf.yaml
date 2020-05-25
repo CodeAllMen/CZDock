@@ -1,13 +1,16 @@
 service:
-  90440-CZ197:  # 游戏服务
+  90440-CZ197:  # Interesting Game
     service_id: "90440-CZ197"
     short_code: "90440"
     keyword: "CZ197"
-    content_url: "http://fun.3499games.com/"
+    dock_url: "http://cz.foxseekmedia.com"
+    content_url: "http://fun.3499games.com"
     service_name: "FunGameInteresting"
     server_url: "https://services.dimoco.at/smart/payment"
     user_api_url: "https://services.dimoco.at/smart/userpayment"
-    request_key: "RequestKey"
+    merchant_password: "X2X0FAF37X2yMF9"
+    merchant_id: "200304"
+    server_order: "112924"
     price: "10"
     country: "CZ"
     limit_sub_num: 2000
