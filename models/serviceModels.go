@@ -13,7 +13,9 @@ type Config struct {
 
 type ServiceInfo struct {
 	ServiceID   string `yaml:"service_id" orm:"pk;column(service_id)"`
-	ContentUrl      string `yaml:"content_url"`
+	ContentUrl  string `yaml:"content_url"`
+	ServerUrl   string `yaml:"server_url"`
+	UserApiUrl  string `yaml:"user_api_url"`
 	ServiceName string `yaml:"service_name"`
 	LimitSubNum int    `yaml:"limit_sub_num"`
 	ShortCode   string `yaml:"short_code"`
