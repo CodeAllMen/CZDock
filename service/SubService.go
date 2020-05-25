@@ -4,24 +4,11 @@
 
 package service
 
-import (
-	"github.com/MobileCPX/PreBaseLib/splib/tracking"
-	"github.com/angui001/CZDock/libs"
-	"github.com/angui001/CZDock/models"
-	"strconv"
-)
+import "github.com/angui001/CZDock/models"
 
-func StartSubService(trackIdStr string) (err error) {
-	// 首先应该 获取对应的 服务名称之类的
-	// 点击表是存了的，所以直接从点击表获取
-
-	track := new(models.AffTrack)
-	trackId, _ := strconv.Atoi(trackIdStr)
-	track.TrackID = int64(trackId)
-
-	if err = track.GetOne(tracking.ByTrackID); err != nil {
-		err = libs.NewReportError(err)
-	}
+func StartSubService(serviceConfig *models.ServiceInfo, track *models.AffTrack, msisdn string) (err error, errCode int) {
+	// 先检测用户的手机号 是否已经订阅
+	// 如果已经订阅则返回错误信息和代码
 
 	return
 }

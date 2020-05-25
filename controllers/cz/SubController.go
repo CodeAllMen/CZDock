@@ -6,31 +6,52 @@ package cz
 
 import (
 	"fmt"
+	"github.com/MobileCPX/PreBaseLib/splib/tracking"
 	"github.com/angui001/CZDock/libs"
+	"github.com/angui001/CZDock/models"
 	"github.com/angui001/CZDock/service"
-	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/httplib"
+	"strconv"
 )
 
 type SubController struct {
-	beego.Controller
+	CZBaseController
 }
 
 func (sub *SubController) StartSub() {
 	var (
-		err error
+		err           error
+		serviceConfig models.ServiceInfo
+		ok            bool
+		errCode       int
 	)
 
-	trackId := sub.GetString("tid")
+	trackIdStr := sub.GetString("tid")
+	msisdn := sub.GetString("msisdn")
 
-	if trackId == "" {
-		trackId = getTrackId()
+	if trackIdStr == "" {
+		trackIdStr = getTrackId()
 	}
 
-	fmt.Println(trackId)
+	fmt.Println(trackIdStr)
+
+	// 首先应该 获取对应的 服务名称之类的
+	// 点击表是存了的，所以直接从点击表获取
+
+	track := new(models.AffTrack)
+	trackId, _ := strconv.Atoi(trackIdStr)
+	track.TrackID = int64(trackId)
+
+	if err = track.GetOne(tracking.ByTrackID); err != nil {
+		err = libs.NewReportError(err)
+	}
+
+	if serviceConfig, ok = sub.serviceConfig(track.ServiceID); !ok {
+		fmt.Println("获取 service config 出错")
+	}
 
 	// 开始流程
-	if err = service.StartSubService(trackId); err != nil {
+	if err, errCode = service.StartSubService(&serviceConfig, track, msisdn); err != nil {
 		err = libs.NewReportError(err)
 		fmt.Println(err)
 		sub.Data["json"] = libs.Success("failed")
@@ -38,9 +59,21 @@ func (sub *SubController) StartSub() {
 		sub.Data["json"] = libs.Success("ok")
 	}
 
+	// 介绍一下errCode
+	// 因为有很多种情况，所以用errCode 来判断具体的错误
+	// 0 是正常，依次执行,
+	// 1是用户手机号出现了已订阅情况，也就是在订阅期限内，自动跳转到内容页
+	// 其他情况，未完待续
+	switch errCode {
+	case 1:
+		sub.RedirectURL(serviceConfig.ContentUrl)
+	default:
+		// 默认是跳谷歌，但是为了确认错误，跳到错误页
+		sub.RedirectURL("")
+	}
+
 	sub.ServeJSON()
 }
-
 
 func getTrackId() string {
 	var (

@@ -3,7 +3,7 @@ service:
     service_id: "90440-CZ197"
     short_code: "90440"
     keyword: "CZ197"
-    aoc_url: "http://aoc-ic.smsgateway.cc/AIS/4208128/S2/?clickId=1{track_id}&returnURL=https%3A%2F%2Fgoogle.com"
+    content_url: "http://fun.3499games.com/"
     service_name: "FunGameInteresting"
     price: "10"
     country: "CZ"
