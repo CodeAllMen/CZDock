@@ -7,6 +7,7 @@ service:
     service_name: "FunGameInteresting"
     server_url: "https://services.dimoco.at/smart/payment"
     user_api_url: "https://services.dimoco.at/smart/userpayment"
+    request_key: "RequestKey"
     price: "10"
     country: "CZ"
     limit_sub_num: 2000

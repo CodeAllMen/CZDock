@@ -16,6 +16,7 @@ type ServiceInfo struct {
 	ContentUrl  string `yaml:"content_url"`
 	ServerUrl   string `yaml:"server_url"`
 	UserApiUrl  string `yaml:"user_api_url"`
+	RequestKey  string `yaml:"request_key"`
 	ServiceName string `yaml:"service_name"`
 	LimitSubNum int    `yaml:"limit_sub_num"`
 	ShortCode   string `yaml:"short_code"`

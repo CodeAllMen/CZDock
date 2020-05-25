@@ -5,8 +5,12 @@
 package service
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
 	"fmt"
+	"github.com/angui001/CZDock/libs"
 	"github.com/angui001/CZDock/models"
+	"github.com/astaxie/beego/httplib"
 )
 
 // 检查电话号码订阅状态
@@ -21,11 +25,30 @@ func checkMsisdnSubStatus(msisdn string) (ok bool) {
 	return
 }
 
+// digest
+func generateDigest(postData map[string]string, keyOrigin string) (digest string) {
+	var (
+		post string
+	)
+	for _, data := range postData {
+		post = post + data
+	}
+
+	key := []byte(keyOrigin)
+	mac := hmac.New(sha256.New, key)
+	mac.Write([]byte(post))
+	digest = string(mac.Sum(nil))
+
+	return
+}
+
 func StartSubService(serviceConfig *models.ServiceInfo, track *models.AffTrack, msisdn string) (err error, errCode int) {
 	// 先检测用户的手机号 是否已经订阅
 	// 如果已经订阅则返回错误信息和代码
 	var (
-		ok bool
+		ok       bool
+		result   []byte
+		response *httplib.BeegoHTTPRequest
 	)
 
 	if ok = checkMsisdnSubStatus(msisdn); ok {
@@ -36,6 +59,30 @@ func StartSubService(serviceConfig *models.ServiceInfo, track *models.AffTrack, 
 
 	// MERCHANT使用提示的msisdn调用API
 	// 判断 用户电话号码的 运营商
+	postData := make(map[string]string)
+	postData["action"] = "operator-lookup"
+	postData["merchant"] = "merchant"
+	postData["msisdn"] = msisdn
+	postData["order"] = ""
+	postData["redirect"] = string(track.TrackID)
+	postData["url_callback"] = "url_callback"
+
+	// 生成 digest
+	postData["digest"] = generateDigest(postData, serviceConfig.RequestKey)
+
+	request := httplib.Post(serviceConfig.ServerUrl)
+
+	if response, err = request.JSONBody(postData); err != nil {
+		err = libs.NewReportError(err)
+		fmt.Println(err)
+	}
+
+	if result, err = response.Bytes(); err != nil {
+		err = libs.NewReportError(err)
+		fmt.Println(err)
+	}
+
+	fmt.Println(string(result))
 
 	return
 }
