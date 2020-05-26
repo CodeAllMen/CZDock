@@ -13,8 +13,10 @@ func init() {
 	// set postback
 	beego.Router("/set/postback", &postback.SetPostbackController{})
 
-	//  订阅请求
+	// 订阅请求
 	beego.Router("/sub/req", &cz.SubController{}, "Get:StartSub")
+	// operator-lookup 回调
+	beego.Router("/sub/operator_lookup", &cz.SubController{}, "Post:OperatorLookupCallBack")
 
 	// 接收MO通知
 	beego.Router("/mo_send_data", &controllers.NotificationController{}, "*:Mo")

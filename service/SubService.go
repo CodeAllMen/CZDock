@@ -42,7 +42,7 @@ func generateDigest(postData map[string]string, keyOrigin string) (digest string
 	return
 }
 
-func StartSubService(serviceConfig *models.ServiceInfo, track *models.AffTrack, msisdn string) (err error, errCode int) {
+func StartSubService(serviceConfig *models.ServiceInfo, track *models.AffTrack, msisdn string) (err error, errCode int, redirectUrl string) {
 	// 先检测用户的手机号 是否已经订阅
 	// 如果已经订阅则返回错误信息和代码
 	var (
@@ -66,7 +66,7 @@ func StartSubService(serviceConfig *models.ServiceInfo, track *models.AffTrack, 
 	postData["msisdn"] = msisdn
 	postData["order"] = serviceConfig.ServerOrder
 	postData["redirect"] = string(track.TrackID)
-	postData["url_callback"] = serviceConfig.DockUrl + "/"
+	postData["url_callback"] = serviceConfig.DockUrl + "/sub/operator_lookup"
 
 	// 生成 digest
 	postData["digest"] = generateDigest(postData, serviceConfig.MerchantPassword)
@@ -87,6 +87,8 @@ func StartSubService(serviceConfig *models.ServiceInfo, track *models.AffTrack, 
 
 	// 数据解析 xml 数据，然后
 	// 这里应该进行重定向 到 xml数据里的 redirect url
+	// 这里的重定向应该判断一下 返回的参数才行
+	// errCode = 2
 
 	return
 }

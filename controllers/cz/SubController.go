@@ -11,6 +11,7 @@ import (
 	"github.com/angui001/CZDock/models"
 	"github.com/angui001/CZDock/service"
 	"github.com/astaxie/beego/httplib"
+	"io/ioutil"
 	"strconv"
 )
 
@@ -24,6 +25,7 @@ func (sub *SubController) StartSub() {
 		serviceConfig models.ServiceInfo
 		ok            bool
 		errCode       int
+		redirectUrl   string
 	)
 
 	trackIdStr := sub.GetString("tid")
@@ -51,7 +53,7 @@ func (sub *SubController) StartSub() {
 	}
 
 	// 开始流程
-	if err, errCode = service.StartSubService(&serviceConfig, track, msisdn); err != nil {
+	if err, errCode, redirectUrl = service.StartSubService(&serviceConfig, track, msisdn); err != nil {
 		err = libs.NewReportError(err)
 		fmt.Println(err)
 		sub.Data["json"] = libs.Success("failed")
@@ -62,15 +64,35 @@ func (sub *SubController) StartSub() {
 	// 介绍一下errCode
 	// 因为有很多种情况，所以用errCode 来判断具体的错误
 	// 0 是正常，依次执行,
-	// 1是用户手机号出现了已订阅情况，也就是在订阅期限内，自动跳转到内容页
+	// 1 是用户手机号出现了已订阅情况，也就是在订阅期限内，自动跳转到内容页
+	// 2 执行正确，然后根据 对方的要求 如果满足条件就是2，进行跳转
 	// 其他情况，未完待续
 	switch errCode {
 	case 1:
 		sub.RedirectURL(serviceConfig.ContentUrl)
+	case 2:
+		sub.RedirectURL(redirectUrl)
 	default:
 		// 默认是跳谷歌，但是为了确认错误，跳到错误页
 		sub.RedirectURL("")
 	}
+
+	sub.ServeJSON()
+}
+
+// operator-lookup的回调 控制器
+func (sub *SubController) OperatorLookupCallBack() {
+	var (
+		bodyData []byte
+		err      error
+	)
+
+	if bodyData, err = ioutil.ReadAll(sub.Ctx.Request.Body); err != nil {
+		err = libs.NewReportError(err)
+		fmt.Println(err)
+	}
+
+	fmt.Println("callback data ========> ", string(bodyData))
 
 	sub.ServeJSON()
 }
