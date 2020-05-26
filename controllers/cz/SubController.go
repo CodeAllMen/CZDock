@@ -19,7 +19,7 @@ type SubController struct {
 	CZBaseController
 }
 
-func (sub *SubController) StartSub() {
+func (sub *SubController) OperatorLookup() {
 	var (
 		err           error
 		serviceConfig models.ServiceInfo
@@ -53,7 +53,7 @@ func (sub *SubController) StartSub() {
 	}
 
 	// 开始流程
-	if err, errCode, redirectUrl = service.StartSubService(&serviceConfig, track, msisdn); err != nil {
+	if err, errCode, redirectUrl = service.OperatorLookupService(&serviceConfig, track, msisdn); err != nil {
 		err = libs.NewReportError(err)
 		fmt.Println(err)
 		sub.Data["json"] = libs.Success("failed")
@@ -92,7 +92,15 @@ func (sub *SubController) OperatorLookupCallBack() {
 		fmt.Println(err)
 	}
 
-	fmt.Println("callback data ========> ", string(bodyData))
+	// 存日志，便于后续进行数据 提取 和 操作
+	fmt.Println("operator-lookup callback data ========> ", string(bodyData))
+
+	sub.ServeJSON()
+}
+
+// 开始订阅
+func (sub *SubController) StartSub() {
+	//
 
 	sub.ServeJSON()
 }

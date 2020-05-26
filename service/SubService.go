@@ -42,7 +42,7 @@ func generateDigest(postData map[string]string, keyOrigin string) (digest string
 	return
 }
 
-func StartSubService(serviceConfig *models.ServiceInfo, track *models.AffTrack, msisdn string) (err error, errCode int, redirectUrl string) {
+func OperatorLookupService(serviceConfig *models.ServiceInfo, track *models.AffTrack, msisdn string) (err error, errCode int, redirectUrl string) {
 	// 先检测用户的手机号 是否已经订阅
 	// 如果已经订阅则返回错误信息和代码
 	var (
@@ -83,7 +83,7 @@ func StartSubService(serviceConfig *models.ServiceInfo, track *models.AffTrack, 
 		fmt.Println(err)
 	}
 
-	fmt.Println(string(result))
+	fmt.Println("operator-lookup data ===========> ", string(result))
 
 	// 数据解析 xml 数据，然后
 	// 这里应该进行重定向 到 xml数据里的 redirect url
