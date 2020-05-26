@@ -92,3 +92,39 @@ func OperatorLookupService(serviceConfig *models.ServiceInfo, track *models.AffT
 
 	return
 }
+
+func StartSubService(serviceConfig *models.ServiceInfo, track *models.AffTrack, msisdn string) (err error) {
+	var (
+		ok       bool
+		result   []byte
+		response *httplib.BeegoHTTPRequest
+	)
+
+	// 构造参数
+	postData := make(map[string]string)
+	postData["action"] = "start-subscription"
+	postData["merchant"] = serviceConfig.MerchantId
+	postData["order"] = serviceConfig.ServerOrder
+	postData["request_id"] = string(track.TrackID)
+	postData["service_name"] = serviceConfig.ServiceName
+	postData["url_callback"] = serviceConfig.DockUrl + ""
+	postData["url_return"] = serviceConfig.DockUrl + ""
+
+	postData["digest"] = generateDigest(postData, serviceConfig.MerchantPassword)
+
+	request := httplib.Post(serviceConfig.ServerUrl)
+
+	if response, err = request.JSONBody(postData); err != nil {
+		err = libs.NewReportError(err)
+		fmt.Println(err)
+	}
+
+	if result, err = response.Bytes(); err != nil {
+		err = libs.NewReportError(err)
+		fmt.Println(err)
+	}
+
+	fmt.Println("start-subscription data ===========> ", string(result))
+
+	return
+}

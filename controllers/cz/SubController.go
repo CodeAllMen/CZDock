@@ -100,7 +100,35 @@ func (sub *SubController) OperatorLookupCallBack() {
 
 // 开始订阅
 func (sub *SubController) StartSub() {
-	//
+	var (
+		err error
+	)
+	// 开始订阅操作
+	// 这里应该是 获取参数
+
+	// 开始 订阅
+	if err = service.StartSubService(); err != nil {
+		err = libs.NewReportError(err)
+		fmt.Println(err)
+	}
+
+	sub.ServeJSON()
+}
+
+// start-subscription 回调
+func (sub *SubController) StartSubCallback() {
+	var (
+		bodyData []byte
+		err      error
+	)
+
+	if bodyData, err = ioutil.ReadAll(sub.Ctx.Request.Body); err != nil {
+		err = libs.NewReportError(err)
+		fmt.Println(err)
+	}
+
+	// 存日志，便于后续进行数据 提取 和 操作
+	fmt.Println("start-subscription callback data ========> ", string(bodyData))
 
 	sub.ServeJSON()
 }
