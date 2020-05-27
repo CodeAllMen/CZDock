@@ -7,6 +7,7 @@ package cz
 import (
 	"fmt"
 	"github.com/MobileCPX/PreBaseLib/splib/tracking"
+	"github.com/angui001/CZDock/global"
 	"github.com/angui001/CZDock/libs"
 	"github.com/angui001/CZDock/models"
 	"github.com/angui001/CZDock/service"
@@ -25,7 +26,7 @@ func (sub *SubController) OperatorLookup() {
 		serviceConfig models.ServiceInfo
 		ok            bool
 		errCode       int
-		redirectUrl   string
+		other         string
 	)
 
 	trackIdStr := sub.GetString("tid")
@@ -53,7 +54,7 @@ func (sub *SubController) OperatorLookup() {
 	}
 
 	// 开始流程
-	if err, errCode, redirectUrl = service.OperatorLookupService(&serviceConfig, track, msisdn); err != nil {
+	if err, errCode, other = service.OperatorLookupService(&serviceConfig, track, msisdn); err != nil {
 		err = libs.NewReportError(err)
 		fmt.Println(err)
 		sub.Data["json"] = libs.Success("failed")
@@ -66,12 +67,20 @@ func (sub *SubController) OperatorLookup() {
 	// 0 是正常，依次执行,
 	// 1 是用户手机号出现了已订阅情况，也就是在订阅期限内，自动跳转到内容页
 	// 2 执行正确，然后根据 对方的要求 如果满足条件就是2，进行跳转
+	// 3 这个就是 完全正确的情况，也就是文档里的pending 状态，进行等待同步api的数据
 	// 其他情况，未完待续
 	switch errCode {
 	case 1:
 		sub.RedirectURL(serviceConfig.ContentUrl)
 	case 2:
-		sub.RedirectURL(redirectUrl)
+		sub.RedirectURL(other)
+	case 3:
+		// 正常操作
+		global.SubLock.Mux.Lock()
+		global.SubLock.ChanMap[other] = make(chan int)
+		// 阻塞，等待 同步 回调完成
+		<- global.SubLock.ChanMap[other]
+		global.SubLock.Mux.Unlock()
 	default:
 		// 默认是跳谷歌，但是为了确认错误，跳到错误页
 		sub.RedirectURL("")

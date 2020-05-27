@@ -7,6 +7,7 @@ package service
 import (
 	"crypto/hmac"
 	"crypto/sha256"
+	"encoding/xml"
 	"fmt"
 	"github.com/angui001/CZDock/libs"
 	"github.com/angui001/CZDock/models"
@@ -42,13 +43,14 @@ func generateDigest(postData map[string]string, keyOrigin string) (digest string
 	return
 }
 
-func OperatorLookupService(serviceConfig *models.ServiceInfo, track *models.AffTrack, msisdn string) (err error, errCode int, redirectUrl string) {
+func OperatorLookupService(serviceConfig *models.ServiceInfo, track *models.AffTrack, msisdn string) (err error, errCode int, other string) {
 	// 先检测用户的手机号 是否已经订阅
 	// 如果已经订阅则返回错误信息和代码
 	var (
-		ok       bool
-		result   []byte
-		response *httplib.BeegoHTTPRequest
+		ok             bool
+		result         []byte
+		response       *httplib.BeegoHTTPRequest
+		operatorLookup models.OperatorLookup
 	)
 
 	if ok = checkMsisdnSubStatus(msisdn); ok {
@@ -75,12 +77,12 @@ func OperatorLookupService(serviceConfig *models.ServiceInfo, track *models.AffT
 
 	if response, err = request.JSONBody(postData); err != nil {
 		err = libs.NewReportError(err)
-		fmt.Println(err)
+		return
 	}
 
 	if result, err = response.Bytes(); err != nil {
 		err = libs.NewReportError(err)
-		fmt.Println(err)
+		return
 	}
 
 	fmt.Println("operator-lookup data ===========> ", string(result))
@@ -89,13 +91,27 @@ func OperatorLookupService(serviceConfig *models.ServiceInfo, track *models.AffT
 	// 这里应该进行重定向 到 xml数据里的 redirect url
 	// 这里的重定向应该判断一下 返回的参数才行
 	// errCode = 2
+	if err = xml.Unmarshal(result, &operatorLookup); err != nil {
+		err = libs.NewReportError(err)
+		return
+	}
+	// 不管如何，数据应该入库一次
+	// 数据入库操作
+
+	switch operatorLookup.Result.ActionResult.Status {
+	case 3:
+		errCode = 2
+	case 5:
+		errCode = 3
+	default:
+		errCode = 0
+	}
 
 	return
 }
 
 func StartSubService(serviceConfig *models.ServiceInfo, track *models.AffTrack, msisdn string) (err error) {
 	var (
-		ok       bool
 		result   []byte
 		response *httplib.BeegoHTTPRequest
 	)
@@ -107,8 +123,9 @@ func StartSubService(serviceConfig *models.ServiceInfo, track *models.AffTrack, 
 	postData["order"] = serviceConfig.ServerOrder
 	postData["request_id"] = string(track.TrackID)
 	postData["service_name"] = serviceConfig.ServiceName
-	postData["url_callback"] = serviceConfig.DockUrl + ""
-	postData["url_return"] = serviceConfig.DockUrl + ""
+	postData["url_callback"] = serviceConfig.DockUrl + "/sub/start_sub_callback"
+	// 操作完成后要重定向到的地址
+	postData["url_return"] = serviceConfig.ContentUrl
 
 	postData["digest"] = generateDigest(postData, serviceConfig.MerchantPassword)
 

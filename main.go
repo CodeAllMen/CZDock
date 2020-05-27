@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/MobileCPX/PreBaseLib/databaseutil/redis"
 	"github.com/MobileCPX/PreBaseLib/splib/click"
+	"github.com/angui001/CZDock/global"
 	_ "github.com/angui001/CZDock/initial"
 	"github.com/angui001/CZDock/models"
 	_ "github.com/angui001/CZDock/routers"
@@ -14,6 +15,7 @@ func init() {
 
 	// 初始化服务配置
 	models.InitServiceConfig()
+	global.InitSubLock()
 	// SendClickDataToAdmin()
 	// task.SendMtDaily()
 
