@@ -5,6 +5,7 @@
 package cz
 
 import (
+	"encoding/xml"
 	"fmt"
 	"github.com/MobileCPX/PreBaseLib/splib/tracking"
 	"github.com/angui001/CZDock/global"
@@ -27,6 +28,7 @@ func (sub *SubController) OperatorLookup() {
 		ok            bool
 		errCode       int
 		other         string
+		redirectUrl   string
 	)
 
 	trackIdStr := sub.GetString("tid")
@@ -51,6 +53,7 @@ func (sub *SubController) OperatorLookup() {
 
 	if serviceConfig, ok = sub.serviceConfig(track.ServiceID); !ok {
 		fmt.Println("获取 service config 出错")
+		sub.RedirectURL("")
 	}
 
 	// 开始流程
@@ -58,8 +61,8 @@ func (sub *SubController) OperatorLookup() {
 		err = libs.NewReportError(err)
 		fmt.Println(err)
 		sub.Data["json"] = libs.Success("failed")
-	} else {
-		sub.Data["json"] = libs.Success("ok")
+		sub.ServeJSON()
+		sub.StopRun()
 	}
 
 	// 介绍一下errCode
@@ -77,67 +80,87 @@ func (sub *SubController) OperatorLookup() {
 	case 3:
 		// 正常操作
 		global.SubLock.Mux.Lock()
-		global.SubLock.ChanMap[other] = make(chan int)
+		if global.SubLock.ChanMap[other] == nil {
+			// 如果是不存在的则自己创建
+			global.SubLock.ChanMap[other] = make(chan int)
+		}
+
+		global.SubLock.TrackMap[other] = track
+		global.SubLock.ServiceConfMap[other] = &serviceConfig
+
 		// 阻塞，等待 同步 回调完成
-		<- global.SubLock.ChanMap[other]
+		<-global.SubLock.ChanMap[other]
+		redirectUrl = global.SubLock.RedirectUrlMap[other]
+		// 删除map的 元素，防止内存 爆炸
+		delete(global.SubLock.ChanMap, other)
+		delete(global.SubLock.RedirectUrlMap, other)
 		global.SubLock.Mux.Unlock()
-	default:
-		// 默认是跳谷歌，但是为了确认错误，跳到错误页
-		sub.RedirectURL("")
+		sub.RedirectURL(redirectUrl)
 	}
 
+	sub.Data["json"] = "error"
+
+	// 默认返回数据
 	sub.ServeJSON()
 }
 
 // operator-lookup的回调 控制器
 func (sub *SubController) OperatorLookupCallBack() {
 	var (
-		bodyData []byte
-		err      error
+		bodyData               []byte
+		err                    error
+		operatorLookupCallback models.OperatorLookupCallback
+		redirectUrl            string
 	)
 
 	if bodyData, err = ioutil.ReadAll(sub.Ctx.Request.Body); err != nil {
 		err = libs.NewReportError(err)
 		fmt.Println(err)
+	}
+
+	fmt.Println(string(bodyData))
+
+	// 解析为结构体
+	if err = xml.Unmarshal(bodyData, &operatorLookupCallback); err != nil {
+		err = libs.NewReportError(err)
+		fmt.Println(err)
+	}
+
+	// 回调之后应该解除阻塞
+	if operatorLookupCallback.Result.ActionResult.Status == 0 {
+		// 状态为0是 成功 success
+		// 解除阻塞
+		global.SubLock.Mux.Lock()
+		reference := operatorLookupCallback.Result.Reference
+		if global.SubLock.ChanMap[reference] == nil {
+			// 如果是不存在的则自己创建
+			global.SubLock.ChanMap[reference] = make(chan int)
+		}
+
+		// 这里是 开始 start_subscription 流程
+		if redirectUrl, err = service.StartSubService(
+			global.SubLock.ServiceConfMap[reference],
+			global.SubLock.TrackMap[reference],
+			operatorLookupCallback.Result.CustomParameters.Msisdn,
+			operatorLookupCallback.Result.CustomParameters.Operator); err != nil {
+			err = libs.NewReportError(err)
+			fmt.Println(err)
+		}
+
+		global.SubLock.RedirectUrlMap[reference] = redirectUrl
+
+		global.SubLock.ChanMap[reference] <- 1
+
+		delete(global.SubLock.TrackMap, reference)
+		delete(global.SubLock.ServiceConfMap, reference)
+
+		global.SubLock.Mux.Unlock()
 	}
 
 	// 存日志，便于后续进行数据 提取 和 操作
 	fmt.Println("operator-lookup callback data ========> ", string(bodyData))
 
-	sub.ServeJSON()
-}
-
-// 开始订阅
-func (sub *SubController) StartSub() {
-	var (
-		err error
-	)
-	// 开始订阅操作
-	// 这里应该是 获取参数
-
-	// 开始 订阅
-	if err = service.StartSubService(); err != nil {
-		err = libs.NewReportError(err)
-		fmt.Println(err)
-	}
-
-	sub.ServeJSON()
-}
-
-// start-subscription 回调
-func (sub *SubController) StartSubCallback() {
-	var (
-		bodyData []byte
-		err      error
-	)
-
-	if bodyData, err = ioutil.ReadAll(sub.Ctx.Request.Body); err != nil {
-		err = libs.NewReportError(err)
-		fmt.Println(err)
-	}
-
-	// 存日志，便于后续进行数据 提取 和 操作
-	fmt.Println("start-subscription callback data ========> ", string(bodyData))
+	sub.Data["json"] = fmt.Sprintf("%v", err)
 
 	sub.ServeJSON()
 }

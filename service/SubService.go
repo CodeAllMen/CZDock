@@ -7,21 +7,58 @@ package service
 import (
 	"crypto/hmac"
 	"crypto/sha256"
+	"encoding/hex"
 	"encoding/xml"
 	"fmt"
+	"github.com/MobileCPX/PreBaseLib/splib/mo"
 	"github.com/angui001/CZDock/libs"
 	"github.com/angui001/CZDock/models"
-	"github.com/astaxie/beego/httplib"
+	"github.com/astaxie/beego/logs"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"time"
 )
 
 // 检查电话号码订阅状态
 // true  为 已订阅
 // false 为 未订阅
-func checkMsisdnSubStatus(msisdn string) (ok bool) {
+func checkMsisdnSubStatus(msisdn string, serviceConfig *models.ServiceInfo) (ok bool) {
 	// 首先根据 电话号码查询数据库
 	// 这里拿到
+	var (
+		err error
+	)
 
 	ok = false
+
+	moT := &mo.Mo{}
+	if moT, err = moT.GetMoByMsisdnShortCodeAndKeywordID(msisdn, serviceConfig.ServerOrder, serviceConfig.ServerOrder); err != nil {
+		err = libs.NewReportError(err)
+		fmt.Println(err)
+	}
+
+	if moT.ID != 0 {
+		// 检查时间范围
+		ctime := moT.SubTime
+		// 获取本地时区，
+		loc, _ := time.LoadLocation("Local")
+		// 指定时间模板
+		l := "2006-01-02 15:04:05"
+		t, _ := time.ParseInLocation(l, ctime, loc)
+		// 订阅过期时间
+		unsub := t.AddDate(0, 0, 7)
+		// 如果在过期时间内，则跳转到内容站，否则跳转到支付页面
+		if unsub.After(time.Now()) {
+			logs.Info("用户", msisdn, "未超出期限")
+			ok = true
+		} else {
+			logs.Info("用户", msisdn, "超出期限，跳转支付页面")
+			ok = false
+		}
+	} else {
+		logs.Info("用户未订阅 :", msisdn, "跳转支付页面")
+	}
 
 	return
 }
@@ -38,7 +75,7 @@ func generateDigest(postData map[string]string, keyOrigin string) (digest string
 	key := []byte(keyOrigin)
 	mac := hmac.New(sha256.New, key)
 	mac.Write([]byte(post))
-	digest = string(mac.Sum(nil))
+	digest = hex.EncodeToString(mac.Sum(nil))
 
 	return
 }
@@ -49,11 +86,10 @@ func OperatorLookupService(serviceConfig *models.ServiceInfo, track *models.AffT
 	var (
 		ok             bool
 		result         []byte
-		response       *httplib.BeegoHTTPRequest
 		operatorLookup models.OperatorLookup
 	)
 
-	if ok = checkMsisdnSubStatus(msisdn); ok {
+	if ok = checkMsisdnSubStatus(msisdn, serviceConfig); ok {
 		fmt.Println("电话号码已订阅")
 		errCode = 1
 		return
@@ -67,23 +103,28 @@ func OperatorLookupService(serviceConfig *models.ServiceInfo, track *models.AffT
 	postData["merchant"] = serviceConfig.MerchantId
 	postData["msisdn"] = msisdn
 	postData["order"] = serviceConfig.ServerOrder
-	postData["redirect"] = string(track.TrackID)
+	postData["redirect"] = "https://www.google.com"
 	postData["url_callback"] = serviceConfig.DockUrl + "/sub/operator_lookup"
+	postData["request_id"] = string(track.TrackID)
 
 	// 生成 digest
 	postData["digest"] = generateDigest(postData, serviceConfig.MerchantPassword)
 
-	request := httplib.Post(serviceConfig.ServerUrl)
-
-	if response, err = request.JSONBody(postData); err != nil {
+	if result, err = sendRequest(postData, serviceConfig.ServerUrl); err != nil {
 		err = libs.NewReportError(err)
 		return
 	}
+	// request := httplib.Post(serviceConfig.ServerUrl)
 
-	if result, err = response.Bytes(); err != nil {
-		err = libs.NewReportError(err)
-		return
-	}
+	// if response, err = request.JSONBody(postData); err != nil {
+	// 	err = libs.NewReportError(err)
+	// 	return
+	// }
+	//
+	// if result, err = response.Bytes(); err != nil {
+	// 	err = libs.NewReportError(err)
+	// 	return
+	// }
 
 	fmt.Println("operator-lookup data ===========> ", string(result))
 
@@ -101,8 +142,11 @@ func OperatorLookupService(serviceConfig *models.ServiceInfo, track *models.AffT
 	switch operatorLookup.Result.ActionResult.Status {
 	case 3:
 		errCode = 2
+		other = operatorLookup.Result.ActionResult.Url
 	case 5:
+		// 当为5的时候 就进行其他处理
 		errCode = 3
+		other = operatorLookup.Result.Reference
 	default:
 		errCode = 0
 	}
@@ -110,10 +154,10 @@ func OperatorLookupService(serviceConfig *models.ServiceInfo, track *models.AffT
 	return
 }
 
-func StartSubService(serviceConfig *models.ServiceInfo, track *models.AffTrack, msisdn string) (err error) {
+func StartSubService(serviceConfig *models.ServiceInfo, track *models.AffTrack, msisdn, operator string) (redirectUrl string, err error) {
 	var (
-		result   []byte
-		response *httplib.BeegoHTTPRequest
+		result         []byte
+		operatorLookup models.OperatorLookup
 	)
 
 	// 构造参数
@@ -123,25 +167,53 @@ func StartSubService(serviceConfig *models.ServiceInfo, track *models.AffTrack, 
 	postData["order"] = serviceConfig.ServerOrder
 	postData["request_id"] = string(track.TrackID)
 	postData["service_name"] = serviceConfig.ServiceName
-	postData["url_callback"] = serviceConfig.DockUrl + "/sub/start_sub_callback"
+	postData["url_callback"] = serviceConfig.DockUrl + "/notification"
+	postData["operator"] = operator
+	postData["msisdn"] = msisdn
 	// 操作完成后要重定向到的地址
-	postData["url_return"] = serviceConfig.ContentUrl
+	postData["url_return"] = serviceConfig.StartSubReturnUrl
 
 	postData["digest"] = generateDigest(postData, serviceConfig.MerchantPassword)
 
-	request := httplib.Post(serviceConfig.ServerUrl)
-
-	if response, err = request.JSONBody(postData); err != nil {
+	if result, err = sendRequest(postData, serviceConfig.ServerUrl); err != nil {
 		err = libs.NewReportError(err)
-		fmt.Println(err)
+		return
 	}
 
-	if result, err = response.Bytes(); err != nil {
+	// 解析为结构体
+	if err = xml.Unmarshal(result, &operatorLookup); err != nil {
 		err = libs.NewReportError(err)
-		fmt.Println(err)
+		return
+	}
+
+	switch operatorLookup.Result.ActionResult.Status {
+	case 3:
+		redirectUrl = operatorLookup.Result.ActionResult.Url
 	}
 
 	fmt.Println("start-subscription data ===========> ", string(result))
 
 	return
+}
+
+func sendRequest(values map[string]string, URL string) ([]byte, error) {
+	// 这里添加post的body内容
+	data := make(url.Values)
+	for k, v := range values { // 遍历需要发送的数据
+		data[k] = []string{v}
+	}
+
+	// 把post表单发送给目标服务器
+	logs.Info("把post表单发送给目标服务器")
+	res, err := http.PostForm(URL, data)
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, err
+	}
+	defer res.Body.Close()
+	responseData, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+	return responseData, err
 }

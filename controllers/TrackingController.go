@@ -45,7 +45,7 @@ func (c *TrackingController) InsertAffClick() {
 	if track.ServiceID == "" {
 		logs.Error("InsertAffClick ServiceID 为空")
 		c.StringResult("false")
-		//c.RedirectURL("https://google.com")
+		// c.RedirectURL("https://google.com")
 	}
 
 	serviceConf, isExist := c.serviceConfig(track.ServiceID)
@@ -69,7 +69,7 @@ func (c *TrackingController) InsertAffClick() {
 }
 
 func splitServiceIDToKeyword(serviceID string) []string {
-	//eg.  "876551:KW,PT;8765351:KW1,P4T;" ---> ["876551-KW","876551-PT","8765351-KW1","8765351-P4T"]
+	// eg.  "876551:KW,PT;8765351:KW1,P4T;" ---> ["876551-KW","876551-PT","8765351-KW1","8765351-P4T"]
 	var shordCodeKeywordList []string
 	strSplList := strings.Split(serviceID, ";")
 	for _, v := range strSplList {

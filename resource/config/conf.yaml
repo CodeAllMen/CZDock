@@ -1,13 +1,15 @@
 service:
-  90440-CZ197:  # Interesting Game
+  112924:  # Interesting Game
     service_id: "90440-CZ197"
     short_code: "90440"
     keyword: "CZ197"
     dock_url: "http://cz.foxseekmedia.com"
-    content_url: "http://fun.3499games.com"
+    content_url: "interest.3499games.com"
     service_name: "Interesting GAME"
     server_url: "https://services.dimoco.at/smart/payment"
     user_api_url: "https://services.dimoco.at/smart/userpayment"
+    notification_url: "http://cz.foxseekmedia.com/notification"
+    start_sub_return_url: "interest.3499games.com/cz/welcome"
     merchant_password: "X2X0FAF37X2yMF9"
     merchant_id: "200304"
     server_order: "112924"
@@ -15,7 +17,7 @@ service:
     country: "CZ"
     limit_sub_num: 2000
     camp_id: 2
-  90440-CZ198:  # Game Center
+  112925:  # Game Center
     service_id: "90440-CZ198"
     short_code: "90440"
     keyword: "CZ198"
@@ -24,6 +26,8 @@ service:
     service_name: "Game Center"
     server_url: "https://services.dimoco.at/smart/payment"
     user_api_url: "https://services.dimoco.at/smart/userpayment"
+    notification_url: "http://cz.foxseekmedia.com/notification"
+    start_sub_return_url: "welcome"
     merchant_password: "X2X0FAF37X2yMF9"
     merchant_id: "200304"
     server_order: "112925"
@@ -31,7 +35,7 @@ service:
     country: "CZ"
     limit_sub_num: 2000
     camp_id: 2
-  90440-CZ199:  # FNGame
+  112926:  # FNGame
     service_id: "90440-CZ199"
     short_code: "90440"
     keyword: "CZ199"
@@ -40,6 +44,8 @@ service:
     service_name: "FNGame"
     server_url: "https://services.dimoco.at/smart/payment"
     user_api_url: "https://services.dimoco.at/smart/userpayment"
+    notification_url: "http://cz.foxseekmedia.com/notification"
+    start_sub_return_url: "welcome"
     merchant_password: "X2X0FAF37X2yMF9"
     merchant_id: "200304"
     server_order: "112926"

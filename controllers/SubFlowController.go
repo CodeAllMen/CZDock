@@ -5,7 +5,6 @@ import (
 	"github.com/angui001/CZDock/models"
 	"github.com/astaxie/beego/logs"
 	"strconv"
-	"strings"
 )
 
 type SubFlowController struct {
@@ -39,8 +38,8 @@ func (c *SubFlowController) Prepare() {
 func (c *SubFlowController) SubReq() {
 	// trackID := c.GetString("tid")
 	// 自己生成TrackID
-	AocUrl := strings.Replace(c.serviceConf.AocURL, "{track_id}", strconv.Itoa(c.TrackID), -1)
+	// AocUrl := strings.Replace(c.serviceConf.AocURL, "{track_id}", strconv.Itoa(c.TrackID), -1)
 	// http://aoc-ic.smsgateway.cc/AIS/4208128/S2/?clickId=1{TRACK_ID}&returnURL=
 	// TO AOC
-	c.RedirectURL(AocUrl)
+	// c.RedirectURL(AocUrl)
 }

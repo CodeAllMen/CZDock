@@ -9,6 +9,7 @@ import (
 	"github.com/MobileCPX/PreBaseLib/splib/tracking"
 	"github.com/angui001/CZDock/models"
 	"github.com/astaxie/beego/logs"
+	"strings"
 )
 
 type CZBaseController struct {
@@ -38,4 +39,13 @@ func (c *CZBaseController) getTrackData(trackID int) *models.AffTrack {
 		c.RedirectURL("http://google.com")
 	}
 	return track
+}
+
+// 分割requestID to trackID  1819_sub_1550768968
+func (c *CZBaseController) splitReuestIDToTrackID(requestID string) (trackID string) {
+	result := strings.Split(requestID, "_")
+	if len(result) == 3 {
+		trackID = result[0]
+	}
+	return
 }

@@ -1,12 +1,14 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"github.com/MobileCPX/PreBaseLib/splib/click"
 	"github.com/MobileCPX/PreBaseLib/splib/tracking"
 	"github.com/MobileCPX/PreLancio/util"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
+	"strconv"
 )
 
 // AffTrack 网盟点击追踪
@@ -101,4 +103,24 @@ func InsertHourClick() {
 			o.Insert(&v)
 		}
 	}
+}
+
+func GetServiceIDByTrackID(trackID string) (*AffTrack, error) {
+	o := orm.NewOrm()
+	track := new(AffTrack)
+	trackIDInt, err := strconv.Atoi(trackID)
+	if err != nil {
+		logs.Error("GetServiceIDByTrackID track string to int 错误，ERROR: ", err.Error(), " trackID: ", trackID)
+		return track, errors.New("track string to int error")
+	}
+	fmt.Println(int64(trackIDInt))
+
+	track.TrackID = int64(trackIDInt)
+	err = o.Read(track)
+
+	if err != nil {
+		logs.Error("GetServiceIDByTrackID 通过trackID 查询aff_track 表失败，ERROR: ", err.Error(), " trackID: ", trackID)
+		return track, errors.New("没有查询到数据")
+	}
+	return track, err
 }
