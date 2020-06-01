@@ -20,6 +20,7 @@ type SubLockStruct struct {
 	TrackMap       map[string]*models.AffTrack
 	ServiceConfMap map[string]*models.ServiceInfo
 	RedirectUrlMap map[string]string
+	MarkMap        map[string]chan int
 }
 
 func InitSubLock() {
@@ -29,5 +30,6 @@ func InitSubLock() {
 		TrackMap:       make(map[string]*models.AffTrack),
 		ServiceConfMap: make(map[string]*models.ServiceInfo),
 		RedirectUrlMap: make(map[string]string),
+		MarkMap:        make(map[string]chan int),
 	}
 }

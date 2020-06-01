@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/MobileCPX/PreBaseLib/databaseutil/redis"
 	"github.com/MobileCPX/PreBaseLib/splib/tracking"
 	"github.com/MobileCPX/PreBaseLib/util"
@@ -29,6 +30,7 @@ func (c *TrackingController) InsertAffClick() {
 	}()
 	reqTrack := new(tracking.Track)
 	reqTrack, err := reqTrack.BodyToTrack(c.Ctx.Request.Body)
+	fmt.Println(reqTrack)
 	if err != nil {
 		logs.Error("InsertAffClick 解析json数据失败")
 		c.StringResult("false")
@@ -36,11 +38,11 @@ func (c *TrackingController) InsertAffClick() {
 
 	track.Track = *reqTrack
 
-	keywordList := splitServiceIDToKeyword(track.ServiceID)
+	// keywordList := splitServiceIDToKeyword(track.ServiceID)
 
-	if !strings.Contains(track.ServiceID, "-") {
-		track.ServiceID = c.getServiceID(keywordList)
-	}
+	// if !strings.Contains(track.ServiceID, "-") {
+	// 	track.ServiceID = c.getServiceID(keywordList)
+	// }
 
 	if track.ServiceID == "" {
 		logs.Error("InsertAffClick ServiceID 为空")

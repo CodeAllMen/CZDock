@@ -13,7 +13,6 @@ import (
 	"github.com/angui001/CZDock/models"
 	"github.com/angui001/CZDock/service"
 	"github.com/astaxie/beego/httplib"
-	"io/ioutil"
 	"strconv"
 )
 
@@ -38,7 +37,7 @@ func (sub *SubController) OperatorLookup() {
 		trackIdStr = getTrackId()
 	}
 
-	fmt.Println(trackIdStr)
+	// fmt.Println(trackIdStr)
 
 	// 首先应该 获取对应的 服务名称之类的
 	// 点击表是存了的，所以直接从点击表获取
@@ -60,7 +59,7 @@ func (sub *SubController) OperatorLookup() {
 	if err, errCode, other = service.OperatorLookupService(&serviceConfig, track, msisdn); err != nil {
 		err = libs.NewReportError(err)
 		fmt.Println(err)
-		sub.Data["json"] = libs.Success("failed")
+		sub.Data["json"] = libs.Error(fmt.Sprintf("%v", err))
 		sub.ServeJSON()
 		sub.StopRun()
 	}
@@ -79,22 +78,19 @@ func (sub *SubController) OperatorLookup() {
 		sub.RedirectURL(other)
 	case 3:
 		// 正常操作
-		global.SubLock.Mux.Lock()
-		if global.SubLock.ChanMap[other] == nil {
-			// 如果是不存在的则自己创建
-			global.SubLock.ChanMap[other] = make(chan int)
-		}
-
-		global.SubLock.TrackMap[other] = track
-		global.SubLock.ServiceConfMap[other] = &serviceConfig
-
 		// 阻塞，等待 同步 回调完成
+		fmt.Println(fmt.Sprintf("request id: %v 第 1 次 operator_lookup 阻塞", other))
 		<-global.SubLock.ChanMap[other]
 		redirectUrl = global.SubLock.RedirectUrlMap[other]
+
+		fmt.Println(fmt.Sprintf("request id: %v 第 1 次 operator_lookup 加锁", other))
+		global.SubLock.Mux.Lock()
 		// 删除map的 元素，防止内存 爆炸
 		delete(global.SubLock.ChanMap, other)
 		delete(global.SubLock.RedirectUrlMap, other)
 		global.SubLock.Mux.Unlock()
+
+		fmt.Println("redirectUrl: ", redirectUrl)
 		sub.RedirectURL(redirectUrl)
 	}
 
@@ -109,16 +105,13 @@ func (sub *SubController) OperatorLookupCallBack() {
 	var (
 		bodyData               []byte
 		err                    error
-		operatorLookupCallback models.OperatorLookupCallback
+		operatorLookupCallback models.OperatorLookupCallBackResult
 		redirectUrl            string
 	)
 
-	if bodyData, err = ioutil.ReadAll(sub.Ctx.Request.Body); err != nil {
-		err = libs.NewReportError(err)
-		fmt.Println(err)
-	}
-
-	fmt.Println(string(bodyData))
+	bodyData = []byte(sub.Ctx.Request.PostFormValue("data"))
+	digest := sub.Ctx.Request.PostFormValue("digest")
+	fmt.Println("digest: ", digest)
 
 	// 解析为结构体
 	if err = xml.Unmarshal(bodyData, &operatorLookupCallback); err != nil {
@@ -126,23 +119,35 @@ func (sub *SubController) OperatorLookupCallBack() {
 		fmt.Println(err)
 	}
 
+	fmt.Println(operatorLookupCallback)
+
 	// 回调之后应该解除阻塞
-	if operatorLookupCallback.Result.ActionResult.Status == 0 {
+	if operatorLookupCallback.ActionResult.Status == 0 {
 		// 状态为0是 成功 success
 		// 解除阻塞
+		reference := operatorLookupCallback.RequestId
+		fmt.Println("request id is: ", reference)
+
+		fmt.Println(fmt.Sprintf("request id: %v 第 1 次加锁", reference))
 		global.SubLock.Mux.Lock()
-		reference := operatorLookupCallback.Result.Reference
-		if global.SubLock.ChanMap[reference] == nil {
-			// 如果是不存在的则自己创建
-			global.SubLock.ChanMap[reference] = make(chan int)
+
+		if global.SubLock.MarkMap[reference] == nil {
+			fmt.Println("此次请求无效, 直接结束")
+			global.SubLock.Mux.Unlock()
+			sub.Data["json"] = "finished"
+			sub.ServeJSON()
+			sub.StopRun()
 		}
+
+		delete(global.SubLock.MarkMap, reference)
+		global.SubLock.Mux.Unlock()
 
 		// 这里是 开始 start_subscription 流程
 		if redirectUrl, err = service.StartSubService(
 			global.SubLock.ServiceConfMap[reference],
 			global.SubLock.TrackMap[reference],
-			operatorLookupCallback.Result.CustomParameters.Msisdn,
-			operatorLookupCallback.Result.CustomParameters.Operator); err != nil {
+			operatorLookupCallback.Customer.Msisdn,
+			operatorLookupCallback.Customer.Operator); err != nil {
 			err = libs.NewReportError(err)
 			fmt.Println(err)
 		}
@@ -151,9 +156,10 @@ func (sub *SubController) OperatorLookupCallBack() {
 
 		global.SubLock.ChanMap[reference] <- 1
 
+		fmt.Println(fmt.Sprintf("request id: %v 第 2 次加锁", reference))
+		global.SubLock.Mux.Lock()
 		delete(global.SubLock.TrackMap, reference)
 		delete(global.SubLock.ServiceConfMap, reference)
-
 		global.SubLock.Mux.Unlock()
 	}
 
@@ -174,11 +180,11 @@ func getTrackId() string {
 
 	postData := make(map[string]interface{})
 
-	postData["service_id"] = "CZ197-FG"
-	postData["service_name"] = "FG-CZ197-FG"
+	postData["service_id"] = "112924"
+	postData["service_name"] = "Interesting GAME"
 	postData["PromoterID"] = 3
 	postData["offer_id"] = 193
-	postData["camp_id"] = 26
+	postData["camp_id"] = 2
 	postData["aff_name"] = "AAA"
 	postData["PostbackPrice"] = 0.8
 

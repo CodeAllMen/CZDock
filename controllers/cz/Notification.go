@@ -16,6 +16,7 @@ import (
 	"github.com/angui001/CZDock/models/dimoco"
 	"github.com/angui001/CZDock/util"
 	"github.com/astaxie/beego/logs"
+	"strings"
 )
 
 // 接收通知流程
@@ -128,7 +129,10 @@ func (c *NotificationController) Post() {
 	chargeNotify.Msisdn = resultBody.Customer.Msisdn
 	chargeNotify.ChargeType = resultBody.Subscription.Status
 	chargeNotify.ChargeStatus = resultBody.Transactions.TransactionsID.Status
-	chargeNotify.RequestID = resultBody.RequestID
+	chargeNotify.RequestID = strings.ReplaceAll(resultBody.RequestID, "subscription_", "")
+
+	fmt.Println(chargeNotify.RequestID)
+
 	chargeNotify.SubStatus = resultBody.Subscription.Status
 	chargeNotify.Order = resultBody.PaymentParameters.Order
 	chargeNotify.TransactionID = resultBody.Transactions.TransactionsID.ID
@@ -149,11 +153,12 @@ func (c *NotificationController) Post() {
 
 	switch chargeNotify.Action {
 	case "start-subscription":
-		// 注册电话号码及订阅ID
-		httpRequest.RegistereServer(chargeNotify.SubscriptionID)
-		httpRequest.RegistereServer(chargeNotify.Msisdn)
 		// 订阅成功
 		if chargeNotify.SubStatus == "4" || chargeNotify.SubStatus == "3" {
+			// 注册电话号码及订阅ID
+			httpRequest.RegistereServer(chargeNotify.SubscriptionID)
+			httpRequest.RegistereServer(chargeNotify.Msisdn)
+
 			track := new(models.AffTrack)
 			trackID := c.splitReuestIDToTrackID(chargeNotify.RequestID)
 			if trackID != "" {

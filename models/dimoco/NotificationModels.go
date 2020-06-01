@@ -29,6 +29,10 @@ type Notification struct {
 	SubStatus   string
 }
 
+func (notification *Notification) TableName() string {
+	return "charge_notification"
+}
+
 func (notification *Notification) Insert() error {
 	o := orm.NewOrm()
 	nowTime, _ := util.GetNowTimeFormat()

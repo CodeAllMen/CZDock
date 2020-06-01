@@ -11,12 +11,14 @@ import (
 	"encoding/xml"
 	"fmt"
 	"github.com/MobileCPX/PreBaseLib/splib/mo"
+	"github.com/angui001/CZDock/global"
 	"github.com/angui001/CZDock/libs"
 	"github.com/angui001/CZDock/models"
 	"github.com/astaxie/beego/logs"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"sort"
 	"time"
 )
 
@@ -67,9 +69,18 @@ func checkMsisdnSubStatus(msisdn string, serviceConfig *models.ServiceInfo) (ok 
 func generateDigest(postData map[string]string, keyOrigin string) (digest string) {
 	var (
 		post string
+		keys []string
 	)
-	for _, data := range postData {
-		post = post + data
+	// 首先取出所有键值
+	for key := range postData {
+		keys = append(keys, key)
+	}
+
+	// 排序
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		post = post + postData[k]
 	}
 
 	key := []byte(keyOrigin)
@@ -86,7 +97,7 @@ func OperatorLookupService(serviceConfig *models.ServiceInfo, track *models.AffT
 	var (
 		ok             bool
 		result         []byte
-		operatorLookup models.OperatorLookup
+		operatorLookup models.OperatorLookupResult
 	)
 
 	if ok = checkMsisdnSubStatus(msisdn, serviceConfig); ok {
@@ -103,12 +114,23 @@ func OperatorLookupService(serviceConfig *models.ServiceInfo, track *models.AffT
 	postData["merchant"] = serviceConfig.MerchantId
 	postData["msisdn"] = msisdn
 	postData["order"] = serviceConfig.ServerOrder
-	postData["redirect"] = "https://www.google.com"
+	postData["redirect"] = "0"
 	postData["url_callback"] = serviceConfig.DockUrl + "/sub/operator_lookup"
-	postData["request_id"] = string(track.TrackID)
+	fmt.Println(track.TrackID)
+	postData["request_id"] = fmt.Sprintf("%v", track.TrackID)
 
 	// 生成 digest
 	postData["digest"] = generateDigest(postData, serviceConfig.MerchantPassword)
+
+	// 请求之前就创建阻塞map 和 需要的数据
+	other = fmt.Sprintf("%v", track.TrackID)
+
+	global.SubLock.Mux.Lock()
+	global.SubLock.ChanMap[other] = make(chan int, 1)
+	global.SubLock.TrackMap[other] = track
+	global.SubLock.ServiceConfMap[other] = serviceConfig
+	global.SubLock.MarkMap[other] = make(chan int, 1)
+	global.SubLock.Mux.Unlock()
 
 	if result, err = sendRequest(postData, serviceConfig.ServerUrl); err != nil {
 		err = libs.NewReportError(err)
@@ -136,17 +158,18 @@ func OperatorLookupService(serviceConfig *models.ServiceInfo, track *models.AffT
 		err = libs.NewReportError(err)
 		return
 	}
+	fmt.Println("SubService operator lookup: ", operatorLookup)
 	// 不管如何，数据应该入库一次
 	// 数据入库操作
 
-	switch operatorLookup.Result.ActionResult.Status {
+	switch operatorLookup.ActionResult.Status {
 	case 3:
 		errCode = 2
-		other = operatorLookup.Result.ActionResult.Url
+		other = operatorLookup.ActionResult.Url
 	case 5:
 		// 当为5的时候 就进行其他处理
 		errCode = 3
-		other = operatorLookup.Result.Reference
+		other = fmt.Sprintf("%v", track.TrackID)
 	default:
 		errCode = 0
 	}
@@ -157,38 +180,46 @@ func OperatorLookupService(serviceConfig *models.ServiceInfo, track *models.AffT
 func StartSubService(serviceConfig *models.ServiceInfo, track *models.AffTrack, msisdn, operator string) (redirectUrl string, err error) {
 	var (
 		result         []byte
-		operatorLookup models.OperatorLookup
+		operatorLookup models.OperatorLookupResult
 	)
 
-	// 构造参数
+	fmt.Println("msisdn =======================> ", msisdn, "  operator =======> ", operator)
+
+	// make params
 	postData := make(map[string]string)
 	postData["action"] = "start-subscription"
 	postData["merchant"] = serviceConfig.MerchantId
 	postData["order"] = serviceConfig.ServerOrder
-	postData["request_id"] = string(track.TrackID)
+	postData["request_id"] = fmt.Sprintf("subscription_%v", track.TrackID)
 	postData["service_name"] = serviceConfig.ServiceName
 	postData["url_callback"] = serviceConfig.DockUrl + "/notification"
 	postData["operator"] = operator
 	postData["msisdn"] = msisdn
-	// 操作完成后要重定向到的地址
+	postData["channel"] = "sms"
+	postData["amount"] = "99"
+	// redirect url when finish all
 	postData["url_return"] = serviceConfig.StartSubReturnUrl
 
 	postData["digest"] = generateDigest(postData, serviceConfig.MerchantPassword)
 
+	fmt.Println("send subscription request: ")
 	if result, err = sendRequest(postData, serviceConfig.ServerUrl); err != nil {
 		err = libs.NewReportError(err)
 		return
 	}
 
+	fmt.Println("unmarshal subscription xml: ")
 	// 解析为结构体
 	if err = xml.Unmarshal(result, &operatorLookup); err != nil {
 		err = libs.NewReportError(err)
 		return
 	}
 
-	switch operatorLookup.Result.ActionResult.Status {
+	fmt.Println("subscription result: ", operatorLookup)
+
+	switch operatorLookup.ActionResult.Status {
 	case 3:
-		redirectUrl = operatorLookup.Result.ActionResult.Url
+		redirectUrl = operatorLookup.ActionResult.Url
 	}
 
 	fmt.Println("start-subscription data ===========> ", string(result))

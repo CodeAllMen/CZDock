@@ -24,7 +24,7 @@ func init() {
 }
 
 func main() {
-	beego.Run()
+	beego.Run("0.0.0.0:8097")
 }
 
 // func sendMtTask() {

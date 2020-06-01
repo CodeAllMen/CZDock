@@ -5,10 +5,11 @@ import (
 	"github.com/MobileCPX/PreBaseLib/splib/mo"
 	"github.com/MobileCPX/PreBaseLib/splib/notification"
 	"github.com/MobileCPX/PreBaseLib/splib/postback"
+	"github.com/angui001/CZDock/models/dimoco"
 	"github.com/astaxie/beego/orm"
 )
 
 func init() {
 	orm.RegisterModel(new(postback.Postback), new(AffTrack), new(MtReqData), new(mo.Mo),
-		new(notification.Notification), new(click.HourClick), new(ReqData))
+		new(notification.Notification), new(click.HourClick), new(ReqData), new(dimoco.Notification))
 }
