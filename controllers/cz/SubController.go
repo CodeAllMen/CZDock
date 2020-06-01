@@ -82,19 +82,29 @@ func (sub *SubController) OperatorLookup() {
 		fmt.Println(fmt.Sprintf("request id: %v 第 1 次 operator_lookup 阻塞", other))
 		<-global.SubLock.ChanMap[other]
 		redirectUrl = global.SubLock.RedirectUrlMap[other]
+		if global.SubLock.ErrorMap[other] != nil {
+			err = global.SubLock.ErrorMap[other]
+		}
 
 		fmt.Println(fmt.Sprintf("request id: %v 第 1 次 operator_lookup 加锁", other))
 		global.SubLock.Mux.Lock()
 		// 删除map的 元素，防止内存 爆炸
+		delete(global.SubLock.ErrorMap, other)
 		delete(global.SubLock.ChanMap, other)
 		delete(global.SubLock.RedirectUrlMap, other)
 		global.SubLock.Mux.Unlock()
 
 		fmt.Println("redirectUrl: ", redirectUrl)
-		sub.RedirectURL(redirectUrl)
+		if redirectUrl != "" {
+			sub.RedirectURL(redirectUrl)
+		}
 	}
 
-	sub.Data["json"] = "error"
+	if err != nil {
+		sub.Data["json"] = fmt.Sprintf("%v", err)
+	} else {
+		sub.Data["json"] = "error"
+	}
 
 	// 默认返回数据
 	sub.ServeJSON()
@@ -149,6 +159,7 @@ func (sub *SubController) OperatorLookupCallBack() {
 			operatorLookupCallback.Customer.Msisdn,
 			operatorLookupCallback.Customer.Operator); err != nil {
 			err = libs.NewReportError(err)
+			global.SubLock.ErrorMap[reference] = err
 			fmt.Println(err)
 		}
 

@@ -9,6 +9,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"github.com/MobileCPX/PreBaseLib/splib/mo"
 	"github.com/angui001/CZDock/global"
@@ -218,8 +219,14 @@ func StartSubService(serviceConfig *models.ServiceInfo, track *models.AffTrack, 
 	fmt.Println("subscription result: ", operatorLookup)
 
 	switch operatorLookup.ActionResult.Status {
+	case 1:
+		err = libs.NewReportError(errors.New("subscription failure request"))
 	case 3:
 		redirectUrl = operatorLookup.ActionResult.Url
+	case 5:
+		// 5 则是交给后续处理
+		fmt.Println("后续处理")
+
 	}
 
 	fmt.Println("start-subscription data ===========> ", string(result))

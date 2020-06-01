@@ -21,6 +21,7 @@ type SubLockStruct struct {
 	ServiceConfMap map[string]*models.ServiceInfo
 	RedirectUrlMap map[string]string
 	MarkMap        map[string]chan int
+	ErrorMap       map[string]error
 }
 
 func InitSubLock() {
@@ -31,5 +32,6 @@ func InitSubLock() {
 		ServiceConfMap: make(map[string]*models.ServiceInfo),
 		RedirectUrlMap: make(map[string]string),
 		MarkMap:        make(map[string]chan int),
+		ErrorMap:       make(map[string]error),
 	}
 }
