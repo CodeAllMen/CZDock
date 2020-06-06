@@ -7,6 +7,7 @@ package libs
 import (
 	"errors"
 	"fmt"
+	"os"
 	"runtime"
 )
 
@@ -25,4 +26,55 @@ func NewReportError(err error) error {
 	_, fileName, line, _ := runtime.Caller(1)
 	data := fmt.Sprintf("%v, report in: %v: in line %v", err, fileName, line)
 	return errors.New(data)
+}
+
+// 写内容到文件
+// params: you can give any type unlimit number data
+// Write content to a file.
+// If there is not exists, the method will auto create it.
+func WriteDataToFile(path string, params ...interface{}) (err error) {
+	var (
+		ok          bool
+		file        *os.File
+		content     string
+		contentByte []byte
+	)
+
+	if file, err = os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644); err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	defer func() {
+		// close file stream
+		if err = file.Close(); err != nil {
+			fmt.Println(err)
+		}
+	}()
+
+	if len(params) < 1 {
+		fmt.Println(errors.New("null data"))
+		return
+	}
+
+	// 转化 要写入的内容
+	for _, data := range params {
+		if content, ok = data.(string); !ok {
+			if contentByte, ok = data.([]byte); !ok {
+				fmt.Println(errors.New("interface convert to string error"))
+				return
+			} else {
+				_, err = file.Write(contentByte)
+			}
+		} else {
+			_, err = file.Write([]byte(content))
+		}
+
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	}
+
+	return
 }

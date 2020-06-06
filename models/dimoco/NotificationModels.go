@@ -8,25 +8,25 @@ import (
 
 // GoNotification 订阅，续订、退订通知
 type Notification struct {
-	ID               int64  `orm:"pk;auto;column(id)" json:"id"`      //自增ID
+	ID               int64  `orm:"pk;auto;column(id)" json:"id"`                   // 自增ID
 	SubscriptionID   string `orm:"column(subscription_id)" json:"subscription_id"` // 订阅id
 	TransactionID    string `orm:"column(transaction_id)" json:"transaction_id"`
-	Action           string
+	Action           string `json:"action"`
 	NotificationType string `orm:"column(notification_type)"` // 通知类型
 	Sendtime         string `orm:"column(sendtime);size(30)"` // 点击时间
-	ChargeType       string
+	ChargeType       string `json:"charge_type"`
 	RequestID        string `orm:"column(request_id)"`
-	ChargeStatus     string
-	Order            string
+	ChargeStatus     string `json:"charge_status"`
+	Order            string `json:"order"`
 
 	Msisdn      string `orm:"size(20)"`
-	Operator    string
-	ServiceID   string
-	ServiceType string
-	ErrorCode   string
+	Operator    string `json:"operator"`
+	ServiceID   string `json:"service_id"`
+	ServiceType string `json:"service_type"`
+	ErrorCode   string `json:"error_code"`
 	XMLData     string `orm:"column(xml_data)"`
 	Digest      string `orm:"column(digest)"`
-	SubStatus   string
+	SubStatus   string `json:"sub_status"`
 }
 
 func (notification *Notification) TableName() string {

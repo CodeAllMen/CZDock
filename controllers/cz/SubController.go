@@ -95,7 +95,9 @@ func (sub *SubController) OperatorLookup() {
 		global.SubLock.Mux.Unlock()
 
 		fmt.Println("redirectUrl: ", redirectUrl)
-		if redirectUrl != "" {
+		if redirectUrl == "" {
+			sub.RedirectURL(serviceConfig.StartSubReturnUrl)
+		} else {
 			sub.RedirectURL(redirectUrl)
 		}
 	}
@@ -131,11 +133,12 @@ func (sub *SubController) OperatorLookupCallBack() {
 
 	fmt.Println(operatorLookupCallback)
 
+	reference := operatorLookupCallback.RequestId
+
 	// 回调之后应该解除阻塞
 	if operatorLookupCallback.ActionResult.Status == 0 {
 		// 状态为0是 成功 success
 		// 解除阻塞
-		reference := operatorLookupCallback.RequestId
 		fmt.Println("request id is: ", reference)
 
 		fmt.Println(fmt.Sprintf("request id: %v 第 1 次加锁", reference))
@@ -168,11 +171,14 @@ func (sub *SubController) OperatorLookupCallBack() {
 		global.SubLock.ChanMap[reference] <- 1
 
 		fmt.Println(fmt.Sprintf("request id: %v 第 2 次加锁", reference))
-		global.SubLock.Mux.Lock()
-		delete(global.SubLock.TrackMap, reference)
-		delete(global.SubLock.ServiceConfMap, reference)
-		global.SubLock.Mux.Unlock()
+	}else {
+		global.SubLock.ChanMap[reference] <- 1
 	}
+
+	global.SubLock.Mux.Lock()
+	delete(global.SubLock.TrackMap, reference)
+	delete(global.SubLock.ServiceConfMap, reference)
+	global.SubLock.Mux.Unlock()
 
 	// 存日志，便于后续进行数据 提取 和 操作
 	fmt.Println("operator-lookup callback data ========> ", string(bodyData))

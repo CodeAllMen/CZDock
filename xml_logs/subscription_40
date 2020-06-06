@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<result sync="false" version="2">
+    <action>start-subscription</action>
+    <action_result>
+        <code>101</code>
+        <detail>Invalid parameter: text: sms text has more then 160 characters</detail>
+        <status>1</status>
+    </action_result>
+    <customer>
+        <country>CZ</country>
+        <language>cs</language>
+        <msisdn>420723190565</msisdn>
+        <operator>CZ_O2</operator>
+    </customer>
+    <payment_parameters>
+        <channel>web</channel>
+        <method>OPERATOR</method>
+        <order>112924</order>
+    </payment_parameters>
+    <transactions>
+        <transaction>
+            <amount>99.00</amount>
+            <billed_amount>0</billed_amount>
+            <currency>CZK</currency>
+            <id>723010965130803</id>
+            <status>-1</status>
+        </transaction>
+    </transactions>
+    <request_id>subscription_40</request_id>
+    <reference>0ba10825-95f9-4a11-9093-b5345d36aed7</reference>
+</result>
+b222a09b03993ca7bc7ab48b35e6844920e5174b180f2dccd7c01b16f4e6af4d

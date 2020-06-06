@@ -8,6 +8,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"fmt"
@@ -180,8 +181,9 @@ func OperatorLookupService(serviceConfig *models.ServiceInfo, track *models.AffT
 
 func StartSubService(serviceConfig *models.ServiceInfo, track *models.AffTrack, msisdn, operator string) (redirectUrl string, err error) {
 	var (
-		result         []byte
-		operatorLookup models.OperatorLookupResult
+		result            []byte
+		promptContentArgs []byte
+		operatorLookup    models.OperatorLookupResult
 	)
 
 	fmt.Println("msisdn =======================> ", msisdn, "  operator =======> ", operator)
@@ -194,9 +196,21 @@ func StartSubService(serviceConfig *models.ServiceInfo, track *models.AffTrack, 
 	postData["request_id"] = fmt.Sprintf("subscription_%v", track.TrackID)
 	postData["service_name"] = serviceConfig.ServiceName
 	postData["url_callback"] = serviceConfig.DockUrl + "/notification"
+
+	// 构造短信内容
+	smsMap := make(map[string]map[string]string)
+	smsMap["text"] = make(map[string]string)
+	smsMap["text"]["en"] = fmt.Sprintf(serviceConfig.PromptContentArgsEn, serviceConfig.ContentUrl)
+	smsMap["text"]["cs"] = fmt.Sprintf(serviceConfig.PromptContentArgsCs, serviceConfig.ContentUrl)
+	if promptContentArgs, err = json.Marshal(&smsMap); err != nil {
+		err = libs.NewReportError(err)
+		return
+	}
+
+	postData["prompt_content_args"] = string(promptContentArgs)
 	postData["operator"] = operator
 	postData["msisdn"] = msisdn
-	postData["channel"] = "sms"
+	postData["channel"] = "web"
 	postData["amount"] = "99"
 	// redirect url when finish all
 	postData["url_return"] = serviceConfig.StartSubReturnUrl

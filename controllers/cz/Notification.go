@@ -7,11 +7,12 @@ package cz
 import (
 	"encoding/xml"
 	"fmt"
-	"github.com/MobileCPX/PreBaseLib/sp/admindata"
 	"github.com/MobileCPX/PreBaseLib/splib"
+	"github.com/MobileCPX/PreBaseLib/splib/admindata"
 	"github.com/MobileCPX/PreBaseLib/splib/common"
 	"github.com/MobileCPX/PreBaseLib/splib/mo"
 	"github.com/MobileCPX/PreDimoco/httpRequest"
+	"github.com/angui001/CZDock/libs"
 	"github.com/angui001/CZDock/models"
 	"github.com/angui001/CZDock/models/dimoco"
 	"github.com/angui001/CZDock/util"
@@ -112,6 +113,7 @@ type redirectURL struct {
 }
 
 func (c *NotificationController) Post() {
+	fmt.Println("call /notification")
 	var resultBody result
 	data := c.Ctx.Request.PostFormValue("data")
 	digest := c.Ctx.Request.PostFormValue("digest")
@@ -122,6 +124,14 @@ func (c *NotificationController) Post() {
 	}
 	logs.Info("request_id:", resultBody.RequestID)
 
+	fileName := resultBody.RequestID
+	if fileName == "" {
+		fileName = resultBody.Transactions.TransactionsID.SubscriptionID
+	}
+	// 将回传的数据存储到文件，便于本地调试
+	libs.WriteDataToFile(fmt.Sprintf("xml_logs/%v", fileName), data, digest)
+
+	fmt.Println("notification case: ", resultBody.Action)
 	chargeNotify := new(dimoco.Notification)
 	chargeNotify.Action = resultBody.Action
 	chargeNotify.SubscriptionID = resultBody.Subscription.SubscriptionID
@@ -141,28 +151,41 @@ func (c *NotificationController) Post() {
 
 	moT := new(mo.Mo)
 	var moBase common.MoBase
-	if chargeNotify.Action == "close-subscription" || chargeNotify.Action == "renew-subscription" {
-		_, err := moT.GetMoBySubscriptionID(chargeNotify.SubscriptionID)
-		if err != nil {
-			moBase.SubscriptionID = chargeNotify.SubscriptionID
-			moBase.Msisdn = resultBody.Customer.Msisdn
-			moBase.ServiceID = chargeNotify.Order
-			moBase.Operator = resultBody.Customer.Operator
-		}
+	// if chargeNotify.Action == "close-subscription" || chargeNotify.Action == "renew-subscription" {
+	// 	_, err := moT.GetMoBySubscriptionID(chargeNotify.SubscriptionID)
+	// 	if err != nil {
+	// 		moBase.SubscriptionID = chargeNotify.SubscriptionID
+	// 		moBase.Msisdn = resultBody.Customer.Msisdn
+	// 		moBase.ServiceID = chargeNotify.Order
+	// 		moBase.Operator = resultBody.Customer.Operator
+	// 	}
+	// }
+
+	_, err := moT.GetMoBySubscriptionID(chargeNotify.SubscriptionID)
+	if err != nil {
+		moBase.SubscriptionID = chargeNotify.SubscriptionID
+		moBase.Msisdn = resultBody.Customer.Msisdn
+		moBase.ServiceID = chargeNotify.Order
+		moBase.Operator = resultBody.Customer.Operator
 	}
 
 	switch chargeNotify.Action {
 	case "start-subscription":
 		// 订阅成功
+		fmt.Println("   <======================> 订阅步骤")
 		if chargeNotify.SubStatus == "4" || chargeNotify.SubStatus == "3" {
 			// 注册电话号码及订阅ID
 			httpRequest.RegistereServer(chargeNotify.SubscriptionID)
 			httpRequest.RegistereServer(chargeNotify.Msisdn)
 
 			track := new(models.AffTrack)
-			trackID := c.splitReuestIDToTrackID(chargeNotify.RequestID)
+			trackID := chargeNotify.RequestID
+
 			if trackID != "" {
+				fmt.Println("trackID ===============> 不为空")
 				track, _ = models.GetServiceIDByTrackID(trackID)
+			} else {
+				fmt.Println("trackID ===============> 为空")
 			}
 
 			if track.TrackID != 0 {
@@ -180,15 +203,22 @@ func (c *NotificationController) Post() {
 			// moT, chargeNotify.NotificationType = splib.InsertMO(chargeNotify, track)
 		}
 	case "close-subscription":
+		moBase = moT.MoBase
+		chargeNotify.RequestID = fmt.Sprintf("%v", moT.TrackID)
 		chargeNotify.NotificationType, _ = moT.UnsubUpdateMo(chargeNotify.SubscriptionID)
 
 	case "renew-subscription":
 		// 交易成功标识
+		moBase = moT.MoBase
 		if chargeNotify.ChargeStatus == "4" || chargeNotify.ChargeStatus == "5" {
 			chargeNotify.NotificationType, _ = moT.AddSuccessMTNum(chargeNotify.SubscriptionID, chargeNotify.TransactionID)
 		} else {
 			chargeNotify.NotificationType, _ = moT.AddFailedMTNum(chargeNotify.SubscriptionID, chargeNotify.TransactionID)
 		}
+	case "receive-sms-info":
+		_ = chargeNotify.Insert()
+		return
+
 	}
 	_ = chargeNotify.Insert()
 
@@ -209,7 +239,8 @@ func (c *NotificationController) Post() {
 		sendNoti.Operator = moBase.Operator
 		sendNoti.Sendtime = nowTime
 		sendNoti.NotificationType = chargeNotify.NotificationType
-		sendNoti.SendData()
+		fmt.Println("===============> 发送数据到后台服务器")
+		sendNoti.SendData(admindata.SEC)
 	}
 
 	logs.Info("notification", data, digest)

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<result sync="false" version="2">
+    <action>start-subscription</action>
+    <action_result>
+        <code>206</code>
+        <detail>Count per period limit exceeded: Active subscription limit reached</detail>
+        <status>1</status>
+    </action_result>
+    <customer>
+        <country>CZ</country>
+        <language>cs</language>
+        <msisdn>420722315957</msisdn>
+        <operator>CZ_O2</operator>
+    </customer>
+    <payment_parameters>
+        <channel>web</channel>
+        <method>OPERATOR</method>
+        <order>112926</order>
+    </payment_parameters>
+    <transactions>
+        <transaction>
+            <amount>99.00</amount>
+            <billed_amount>0</billed_amount>
+            <currency>CZK</currency>
+            <id>323011047419084</id>
+            <status>-1</status>
+        </transaction>
+    </transactions>
+    <request_id>subscription_52</request_id>
+    <reference>7b094d41-68f7-4f59-acb3-e9663236a8d3</reference>
+</result>
+5aa065aefce0d46d6448a32074ace86b3f843cea04e0246de1b85babc9fbe131
