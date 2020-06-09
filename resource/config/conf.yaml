@@ -10,7 +10,7 @@ service:
     user_api_url: "https://services.dimoco.at/smart/userpayment"
     notification_url: "http://cz.foxseekmedia.com/notification"
     start_sub_return_url: "http://interest.3499games.com/cz/welcome"
-    merchant_password: "X2X0FAF37X2yMF9"
+    merchant_password: "NcLhwtLvxWS1shx"
     prompt_content_args_cs_old: "Zaslate prosim ANO na cislo 9440. %v %v %v %v. "
     prompt_content_args_cs: "odkaz: %v"
     prompt_content_args_en_old: "Please send ANO to 90440. %v %v %v %v. "
@@ -36,10 +36,10 @@ service:
     prompt_content_args_cs_old: "Zaslate prosim ANO na cislo 9440. Cena zpravy %v Kc s DPH za sluzbu %v. Pro zruseni posli SMS ve tvaru STOP sluzba na cislo %v. Vice info posli SMS HELP na %v. "
     prompt_content_args_en: "link: %v "
     prompt_content_args_en_old: "Please send ANO to 90440. %v"
-    merchant_password: "X2X0FAF37X2yMF9"
+    merchant_password: "NcLhwtLvxWS1shx"
     merchant_id: "200304"
     server_order: "112925"
-    price: "10"
+    price: "99"
     country: "CZ"
     limit_sub_num: 2000
     camp_id: 2
@@ -58,10 +58,10 @@ service:
     prompt_content_args_cs_old: "Zaslate prosim ANO na cislo 9440. Cena zpravy %v Kc s DPH za sluzbu %v. Pro zruseni posli SMS ve tvaru STOP sluzba na cislo %v. Vice info posli SMS HELP na %v. "
     prompt_content_args_en: "link: %v"
     prompt_content_args_en_old: "Please send ANO to 90440. Price of the message %v CZK with VAT for the service %v. To cancel, send an SMS in the form of STOP service to the number %v. More info send SMS HELP to %v. "
-    merchant_password: "X2X0FAF37X2yMF9"
+    merchant_password: "NcLhwtLvxWS1shx"
     merchant_id: "200304"
     server_order: "112926"
-    price: "10"
+    price: "99"
     country: "CZ"
     limit_sub_num: 2000
     camp_id: 2

@@ -80,10 +80,13 @@ func generateDigest(postData map[string]string, keyOrigin string) (digest string
 
 	// 排序
 	sort.Strings(keys)
+	fmt.Println(keys)
 
 	for _, k := range keys {
 		post = post + postData[k]
 	}
+
+	fmt.Println(post)
 
 	key := []byte(keyOrigin)
 	mac := hmac.New(sha256.New, key)
@@ -123,6 +126,7 @@ func OperatorLookupService(serviceConfig *models.ServiceInfo, track *models.AffT
 
 	// 生成 digest
 	postData["digest"] = generateDigest(postData, serviceConfig.MerchantPassword)
+	fmt.Println(postData["digest"])
 
 	// 请求之前就创建阻塞map 和 需要的数据
 	other = fmt.Sprintf("%v", track.TrackID)
