@@ -96,7 +96,7 @@ func (sub *SubController) OperatorLookup() {
 
 		fmt.Println("redirectUrl: ", redirectUrl)
 		if redirectUrl == "" {
-			sub.RedirectURL(serviceConfig.StartSubReturnUrl)
+			sub.RedirectURL(serviceConfig.StartSubReturnUrl + "?msisdn=" + msisdn)
 		} else {
 			sub.RedirectURL(redirectUrl)
 		}

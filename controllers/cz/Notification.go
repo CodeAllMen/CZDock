@@ -11,11 +11,10 @@ import (
 	"github.com/MobileCPX/PreBaseLib/splib/admindata"
 	"github.com/MobileCPX/PreBaseLib/splib/common"
 	"github.com/MobileCPX/PreBaseLib/splib/mo"
-	"github.com/MobileCPX/PreDimoco/httpRequest"
-	"github.com/angui001/CZDock/libs"
 	"github.com/angui001/CZDock/models"
 	"github.com/angui001/CZDock/models/dimoco"
 	"github.com/angui001/CZDock/util"
+	"github.com/astaxie/beego/httplib"
 	"github.com/astaxie/beego/logs"
 	"strings"
 )
@@ -129,7 +128,7 @@ func (c *NotificationController) Post() {
 		fileName = resultBody.Transactions.TransactionsID.SubscriptionID
 	}
 	// 将回传的数据存储到文件，便于本地调试
-	libs.WriteDataToFile(fmt.Sprintf("xml_logs/%v", fileName), data, digest)
+	// libs.WriteDataToFile(fmt.Sprintf("xml_logs/%v", fileName), data, digest)
 
 	fmt.Println("notification case: ", resultBody.Action)
 	chargeNotify := new(dimoco.Notification)
@@ -174,9 +173,6 @@ func (c *NotificationController) Post() {
 		// 订阅成功
 		fmt.Println("   <======================> 订阅步骤")
 		if chargeNotify.SubStatus == "4" || chargeNotify.SubStatus == "3" {
-			// 注册电话号码及订阅ID
-			httpRequest.RegistereServer(chargeNotify.SubscriptionID)
-			httpRequest.RegistereServer(chargeNotify.Msisdn)
 
 			track := new(models.AffTrack)
 			trackID := chargeNotify.RequestID
@@ -200,6 +196,10 @@ func (c *NotificationController) Post() {
 			moT.Keyword = chargeNotify.Order
 
 			moT, chargeNotify.NotificationType = splib.InsertMO(moBase, false, true, "Allterco")
+			// 注册电话号码及订阅ID
+			serviceConfig := c.getServiceConfig(track.ServiceID)
+			registereServer(serviceConfig.ContentUrl, chargeNotify.SubscriptionID)
+			registereServer(serviceConfig.ContentUrl, chargeNotify.Msisdn)
 			// moT, chargeNotify.NotificationType = splib.InsertMO(chargeNotify, track)
 		}
 	case "close-subscription":
@@ -245,4 +245,15 @@ func (c *NotificationController) Post() {
 
 	logs.Info("notification", data, digest)
 	c.Ctx.WriteString("OK")
+}
+
+func registereServer(requestUrl, userName string) {
+	// resp := httplib.Get("http://www.c4fungames.com/registere/username?user_name=" + userName)
+	fmt.Println(userName)
+	str, err := httplib.Get(requestUrl + fmt.Sprintf("/cz/register_msisdn?msisdn=%v", userName)).String()
+	if err != nil {
+		// error
+	}
+	fmt.Println(str)
+
 }

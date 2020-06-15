@@ -9,7 +9,7 @@ service:
     server_url: "https://services.dimoco.at/smart/payment"
     user_api_url: "https://services.dimoco.at/smart/userpayment"
     notification_url: "http://cz.foxseekmedia.com/notification"
-    start_sub_return_url: "http://interest.3499games.com/cz/welcome"
+    start_sub_return_url: "http://interest.3499games.com/cz/confirm_sms"
     merchant_password: "NcLhwtLvxWS1shx"
     prompt_content_args_cs_old: "Zaslate prosim ANO na cislo 9440. %v %v %v %v. "
     prompt_content_args_cs: "odkaz: %v"

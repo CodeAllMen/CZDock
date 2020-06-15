@@ -217,7 +217,7 @@ func StartSubService(serviceConfig *models.ServiceInfo, track *models.AffTrack, 
 	postData["channel"] = "web"
 	postData["amount"] = "99"
 	// redirect url when finish all
-	postData["url_return"] = serviceConfig.StartSubReturnUrl
+	postData["url_return"] = serviceConfig.StartSubReturnUrl + "?msisdn=" + msisdn
 
 	postData["digest"] = generateDigest(postData, serviceConfig.MerchantPassword)
 
