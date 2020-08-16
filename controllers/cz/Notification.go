@@ -208,7 +208,6 @@ func (c *NotificationController) Post() {
 		chargeNotify.NotificationType, _ = moT.UnsubUpdateMo(chargeNotify.SubscriptionID)
 
 	case "renew-subscription":
-		// 交易成功标识
 		moBase = moT.MoBase
 		if chargeNotify.ChargeStatus == "4" || chargeNotify.ChargeStatus == "5" {
 			chargeNotify.NotificationType, _ = moT.AddSuccessMTNum(chargeNotify.SubscriptionID, chargeNotify.TransactionID)

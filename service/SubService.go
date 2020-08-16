@@ -111,7 +111,7 @@ func OperatorLookupService(serviceConfig *models.ServiceInfo, track *models.AffT
 		return
 	}
 
-	// MERCHANT使用提示的msisdn调用API
+	// MERCHANT使用提示的msisdn调用API operator
 	// 判断 用户电话号码的 运营商
 	// 构造参数
 	postData := make(map[string]string)

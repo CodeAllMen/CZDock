@@ -56,6 +56,7 @@ func (sub *SubController) OperatorLookup() {
 	}
 
 	// 开始流程
+	// 请求operator 接口，获取到服务商的名称，还有就是获取到是否可以进行订阅
 	if err, errCode, other = service.OperatorLookupService(&serviceConfig, track, msisdn); err != nil {
 		err = libs.NewReportError(err)
 		fmt.Println(err)
@@ -171,7 +172,7 @@ func (sub *SubController) OperatorLookupCallBack() {
 		global.SubLock.ChanMap[reference] <- 1
 
 		fmt.Println(fmt.Sprintf("request id: %v 第 2 次加锁", reference))
-	}else {
+	} else {
 		global.SubLock.ChanMap[reference] <- 1
 	}
 
